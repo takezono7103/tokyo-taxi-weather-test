@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1627"><title>東京タクシー 営業判断・営業用テスト v1.9</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color-scheme:dark;background:#0b1627;color:#eef3fa}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#0b1627}main{max-width:780px;margin:auto;padding:12px 12px 90px}header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}h1{font-size:20px;margin:0}h2{font-size:17px;margin:0 0 10px}p{line-height:1.55;margin:7px 0}.muted{color:#aab9cb}.tiny{font-size:12px}.pill{border-radius:99px;padding:5px 9px;background:#253c55;font-size:12px;white-space:nowrap}.panel{background:#15263b;border:1px solid #344860;border-radius:14px;padding:14px;margin-bottom:10px}.topgrid{display:grid;grid-template-columns:1.3fr .7fr .8fr;gap:7px}.stat{background:#20344d;border-radius:10px;padding:9px}.stat label{display:block;font-size:11px;color:#aab9cb}.stat strong{display:block;font-size:16px;margin-top:4px;line-height:1.3}button,select,input{font:inherit}button{background:#2364b8;border:1px solid #538bcf;color:white;border-radius:10px;padding:11px 12px;font-weight:650;cursor:pointer;min-height:43px}button.secondary{background:#273d55;border-color:#53657a}button.positive{background:#087e75;border-color:#27ab9c}button:disabled{opacity:.5}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1}select{background:#23364d;color:#fff;border:1px solid #53657a;padding:10px;border-radius:9px;max-width:100%;min-height:42px}.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}label.field{display:flex;flex-direction:column;gap:5px;font-size:12px;color:#afc2d7}.decision{border:1px solid #287d8b;background:#10363d;border-radius:12px;padding:13px;margin-top:10px}.decision b{font-size:19px}.candidate{border:1px solid #405873;border-radius:11px;padding:12px;margin:8px 0;background:#172c43}.candidate:first-child{border-color:#46b29d}.ctop{display:flex;align-items:center;justify-content:space-between;gap:8px}.name{font-size:18px;font-weight:750}.distance{font-variant-numeric:tabular-nums;color:#b6d2eb}.reason{color:#c2cfdf;font-size:13px;margin-top:7px;line-height:1.5}.warning{border-left:3px solid #f0b95e;padding:8px 12px;background:#3a3027;border-radius:5px;font-size:13px}.ok{color:#63d1ae}.divider{border-top:1px solid #35465b;margin:12px 0}.hide{display:none}details summary{cursor:pointer;font-weight:700;padding:5px 0}a{color:#a5d1ff}#toast{font-size:12px;color:#f1c77d;margin-top:8px}.footer{font-size:12px;color:#95a6bb;margin-top:15px;line-height:1.65} input[type=number]{width:100%;min-height:42px;padding:9px;color:#fff;background:#23364d;border:1px solid #53657a;border-radius:9px} .gpsnotice{font-size:12px;color:#bdd0df;margin:9px 0} @media(max-width:420px){h1{font-size:17px}.topgrid{grid-template-columns:1fr 1fr 1fr}.stat{padding:7px}.stat strong{font-size:14px}main{padding-left:9px;padding-right:9px}.panel{padding:11px}}
+</style></head><body><main>
+<header><div><h1>🚕 東京タクシー 営業判断</h1><div class="muted tiny">営業用テスト v1.9 ／ GO配車専用</div></div><span class="pill" id="gpsBadge">GPS 未取得</span></header>
+<section class="panel"><div class="topgrid"><div class="stat"><label>現在地（近似）</label><strong id="where">未取得</strong></div><div class="stat"><label>現在時刻</label><strong id="clock">--:--</strong></div><div class="stat"><label>時間帯</label><strong id="period">--</strong></div></div>
+<div class="actions" style="margin-top:10px"><button class="positive" id="locate">📍 現在地を取得</button><button class="secondary" id="refresh">↻ 判断を更新</button></div><div class="gpsnotice" id="gpsInfo">位置情報を許可してください。GPSが使えないときは下の検証地点を選択できます。</div>
+<div class="controls"><label class="field">現在の天候（手動確認）<select id="weather"><option value="unknown">未確認</option><option value="dry">雨なし</option><option value="rain">雨</option><option value="heavy">強い雨</option></select></label><label class="field">空車になってから（任意）<select id="elapsed"><option value="0">未計測</option><option value="5">5分程度</option><option value="10">10分程度</option><option value="20">20分以上</option></select></label></div>
+<div class="panel" style="margin-top:10px" id="forecastPanel"><h2>☔ 今後3時間の雨予報（自動取得＋手動補助）</h2>
+<p class="muted tiny">通常はOpenWeatherの最新予報を読み込みます。取得できない場合のみ下の手動入力を使います。降水確率はGO配車の確率ではありません。</p>
+<div class="stat" style="margin:8px 0;line-height:1.6"><div id="owStatus" class="tiny muted" aria-live="polite">予報は未取得です。下の「予報を自動更新」を押してください。</div><div id="owForecast" class="tiny" style="margin-top:5px"></div><div id="owRegional" class="tiny muted" style="margin-top:7px"></div><div class="actions" style="margin-top:8px"><button id="owRefresh" class="positive">☁ 予報を自動更新</button></div><div class="tiny muted" style="margin-top:7px">Weather data provided by <a href="https://openweathermap.org/" target="_blank" rel="noopener">OpenWeather</a>。予報取得元は東京の代表地点です。公開HTMLにAPIキーは含めません。</div></div>
+<div class="topgrid">
+<label class="field">1時間先（%）<input id="precip1" type="number" min="0" max="100" step="5" inputmode="numeric" placeholder="未入力"></label>
+<label class="field">2時間先（%）<input id="precip2" type="number" min="0" max="100" step="5" inputmode="numeric" placeholder="未入力"></label>
+<label class="field">3時間先（%）<input id="precip3" type="number" min="0" max="100" step="5" inputmode="numeric" placeholder="未入力"></label></div>
+<div class="actions" style="margin-top:9px"><button class="secondary" id="forecastApply">雨予報を反映</button><button class="secondary" id="forecastClear">予報をクリア</button></div>
+<p id="forecastSummary" class="tiny muted" aria-live="polite">雨予報は未入力です。</p><p class="tiny muted">確認先：<a href="https://www.jma.go.jp/bosai/forecast/" target="_blank" rel="noopener noreferrer">気象庁の天気予報</a> ／ <a href="https://www.jma.go.jp/bosai/nowc/" target="_blank" rel="noopener noreferrer">雨雲の動き</a></p>
+</div>
+<div class="decision" aria-live="polite"><div class="tiny muted">現在の判断方針</div><b id="headline">現在地を取得してください</b><p id="guidance">現在地を確認後、近隣継続・短距離移動・遠距離移動の候補を比較します。</p><div id="caution" class="tiny muted"></div></div></section>
+<section class="panel"><h2>次の営業候補 TOP 3</h2><div class="tiny muted">現在地からの直線距離が近いエリアを参考表示。GOの実需要・配車確率ランキングではありません。</div><div id="candidates"><p class="muted">GPS取得後に候補を表示します。</p></div><p class="warning">🚧 この版は実績連動の需要予測ではありません。迎車・停車可否、規制、実際のGO受付状況を優先してください。運転中は操作しないでください。</p></section>
+<section class="panel"><details><summary>入力・検証・情報源（停車中に確認）</summary><p class="muted tiny">GPSが受信できない場合に限り、検証地点を選択してください。選択すると現在地の自動追従は停止します。</p><label class="field">検証地点（GPS代替）<select id="testplace"><option value="">地点を選択</option></select></label><div class="divider"></div><div class="actions"><button class="secondary" id="clear">検証地点を解除</button><button class="secondary" id="stop">GPS追従を停止</button></div><p class="muted tiny">周辺状況：<a href="https://www.jartic.or.jp/" target="_blank" rel="noopener noreferrer">JARTIC道路情報</a> ／ <a href="https://www.jma.go.jp/bosai/forecast/" target="_blank" rel="noopener noreferrer">気象庁</a></p><p class="muted tiny">外部サイトの内容は本画面の順位に自動反映されません。</p><div id="debug" class="tiny muted"></div></details></section>
+<div class="footer">データ出典：都市内の代表地点（静的な参考座標）。評価は直線距離と空車時間・時間帯による試験用ルール。雨予報は注意文に反映し、候補点数・順位は変更しません。また、過去25乗務の実績や鉄道・イベント・交通情報のリアルタイム配信は未接続です。GPS座標・乗務履歴・手入力の降水確率は外部送信しません。天気データは公開の代表地点別JSONを受信します。GPSはHTTPS上のブラウザで許可が必要です。</div>
+</main>
+<script>
+'use strict';
+const PLACES=[{"name": "品川・高輪", "lat": 35.6289, "lon": 139.7388, "note": "品川駅周辺、大通り優先"}, {"name": "大崎", "lat": 35.6197, "lon": 139.7286, "note": "大崎駅周辺、大通り優先"}, {"name": "五反田", "lat": 35.6266, "lon": 139.7234, "note": "駅前交差点の迎車に注意"}, {"name": "浜松町・芝", "lat": 35.6553, "lon": 139.7571, "note": "第一京浜など主要道路"}, {"name": "新橋・汐留", "lat": 35.665, "lon": 139.7597, "note": "駅周辺の停車可否を確認"}, {"name": "虎ノ門", "lat": 35.6676, "lon": 139.7497, "note": "幹線道路中心"}, {"name": "六本木", "lat": 35.6628, "lon": 139.731, "note": "路駐・右左折・迎車位置に注意"}, {"name": "赤坂", "lat": 35.6724, "lon": 139.736, "note": "外堀通り等の幹線道路"}, {"name": "青山・表参道", "lat": 35.6657, "lon": 139.7128, "note": "青山通り等の幹線道路"}, {"name": "渋谷", "lat": 35.658, "lon": 139.7016, "note": "駅周辺は混雑・規制に注意"}, {"name": "恵比寿", "lat": 35.6467, "lon": 139.7101, "note": "明治通り等を意識"}, {"name": "目黒", "lat": 35.634, "lon": 139.7155, "note": "目黒通り等の幹線道路"}, {"name": "新宿", "lat": 35.6909, "lon": 139.7003, "note": "新宿駅周辺は交通規制に注意"}, {"name": "四谷", "lat": 35.6862, "lon": 139.73, "note": "新宿通り・外堀通り"}, {"name": "市ヶ谷", "lat": 35.692, "lon": 139.7357, "note": "靖国通り・外堀通り"}, {"name": "神田", "lat": 35.6917, "lon": 139.7709, "note": "駅周辺は細街路に注意"}, {"name": "東京駅・丸の内", "lat": 35.6812, "lon": 139.7671, "note": "乗降可能な道路を確認"}, {"name": "日本橋", "lat": 35.6827, "lon": 139.7745, "note": "昭和通り等の幹線道路"}, {"name": "銀座・有楽町", "lat": 35.6739, "lon": 139.7632, "note": "規制・混雑エリアを確認"}, {"name": "月島・勝どき", "lat": 35.662, "lon": 139.7833, "note": "橋を渡る移動ロスに注意"}, {"name": "豊洲", "lat": 35.6543, "lon": 139.7969, "note": "幹線道路と橋を意識"}, {"name": "門前仲町", "lat": 35.6726, "lon": 139.7959, "note": "永代通り等"}, {"name": "錦糸町", "lat": 35.6967, "lon": 139.8142, "note": "駅前・四ツ目通り"}, {"name": "上野", "lat": 35.7138, "lon": 139.7773, "note": "駅前混雑に注意"}, {"name": "池袋", "lat": 35.7295, "lon": 139.7109, "note": "繁華街の停車位置に注意"}, {"name": "中野", "lat": 35.7058, "lon": 139.6657, "note": "駅周辺は進入規制に注意"}, {"name": "荻窪", "lat": 35.7046, "lon": 139.6201, "note": "青梅街道等"}, {"name": "三軒茶屋", "lat": 35.6436, "lon": 139.67, "note": "世田谷通り・246号"}, {"name": "下北沢", "lat": 35.6619, "lon": 139.6685, "note": "狭い街路が多い"}, {"name": "自由が丘", "lat": 35.6074, "lon": 139.6688, "note": "駅周辺は細街路に注意"}, {"name": "蒲田", "lat": 35.5625, "lon": 139.716, "note": "駅前の迎車位置に注意"}, {"name": "羽田・天空橋", "lat": 35.5488, "lon": 139.7544, "note": "空港周辺は一般道路での待機規制に注意"}, {"name": "大井町", "lat": 35.6068, "lon": 139.7348, "note": "駅前・幹線道路"}, {"name": "千歳烏山", "lat": 35.6686, "lon": 139.601, "note": "甲州街道など"}, {"name": "調布", "lat": 35.6518, "lon": 139.5449, "note": "都心への長距離空車移動に注意"}, {"name": "吉祥寺", "lat": 35.7031, "lon": 139.5798, "note": "駅周辺の乗降場所に注意"}, {"name": "三鷹", "lat": 35.7027, "lon": 139.5607, "note": "駅前・幹線道路"}];
+const $=id=>document.getElementById(id);
+let position=null,gpsWatch=null,mode='none',lastFix=null;
+let rainForecast=null; // active: automatic or manual forecast
+let weatherBundle=null,weatherLoadedAt=null,rainSource="none";
+
+const earthKm=(a,b,c,d)=>{const R=6371,t=Math.PI/180,dl=(c-a)*t,do_=(d-b)*t,q=Math.sin(dl/2)**2+Math.cos(a*t)*Math.cos(c*t)*Math.sin(do_/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(q)))};
+const jst=()=>new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Tokyo'}));
+const pName=h=>h<13?'午前':h<18?'午後':h<22?'夜':'深夜';
+function nearest(lat,lon){return PLACES.map(p=>({...p,km:earthKm(lat,lon,p.lat,p.lon)})).sort((a,b)=>a.km-b.km)}
+function setStatus(msg){$('gpsInfo').textContent=msg}
+function readRainInputs(){
+  const ids=['precip1','precip2','precip3']; const vals=[];
+  for(const id of ids){ const raw=$(id).value.trim();
+    if(raw===''){vals.push(null);continue;}
+    const num=Number(raw);
+    if(!Number.isFinite(num)||num<0||num>100){throw Error('降水確率は0〜100%で入力してください。')}
+    vals.push(num);
+  }
+  return vals;
+}
+function forecastText(){
+ if(!rainForecast)return '雨予報未入力';
+ const available=rainForecast.filter(x=>x!==null);
+ if(!available.length)return '雨予報未入力';
+ const portions=rainForecast.map((v,i)=>v===null?null:(i+1)+'時間先 '+v+'%').filter(Boolean);
+ return '入力済み: '+portions.join('／');
+}
+function rainForecastNote(){
+ if(!rainForecast)return '';
+ const p=rainForecast;
+ if(p[0]!==null&&p[0]>=70)return ' 1時間先の降水確率が高いため、雨の開始と道路混雑を確認。需要増加は未検証です。';
+ if((p[1]!==null&&p[1]>=70)||(p[2]!==null&&p[2]>=70))return ' 2〜3時間先に雨の可能性があります。現時点で遠距離移動を決めず、予報更新時に再判断してください。';
+ return ' 雨予報は参考情報です。予報確率からGO受注確率は計算できません。';
+}
+$('forecastApply').addEventListener('click',()=>{try{rainSource='manual';rainForecast=readRainInputs();$('forecastSummary').textContent=forecastText()+' ／ 手動入力・最新の予報か確認';render()}catch(e){$('forecastSummary').textContent=e.message}});
+$('forecastClear').addEventListener('click',()=>{rainForecast=null;rainSource='none';for(const id of ['precip1','precip2','precip3'])$(id).value='';$('forecastSummary').textContent=forecastText();render()});
+
+// One Call 4.0 public weather digest (NO secrets in client).
+function selectHourly(records, targetMs){
+ const arr=(records||[]).filter(r=>Number.isFinite(r.t)&&r.t*1000>=targetMs-30*60000).sort((a,b)=>a.t-b.t);
+ return arr.length?arr[0]:null;
+}
+function nearbyStation(){
+ if(!weatherBundle||!Array.isArray(weatherBundle.stations)||!weatherBundle.stations.length)return null;
+ if(!position)return weatherBundle.stations.find(x=>x.id==='shinagawa')||weatherBundle.stations[0];
+ return weatherBundle.stations.map(x=>({...x,distance:earthKm(position.lat,position.lon,x.lat,x.lon)})).sort((a,b)=>a.distance-b.distance)[0];
+}
+function fmtRain(v){return v===null||!Number.isFinite(v)?'—':Math.round(v*100)+'%'}
+function renderAutoWeather(){
+ const status=$('owStatus'),target=$('owForecast'),regional=$('owRegional');
+ if(!weatherBundle){status.textContent='自動予報未取得：必要なら手動入力を使用してください。';target.textContent='';regional.textContent='';return}
+ const gen=Date.parse(weatherBundle.generated_at);const age=Date.now()-gen;
+ if(!Number.isFinite(gen)||age< -10*60000||age>120*60000){
+  status.textContent='天気データが古いか、更新時刻が不正です。安全のため自動予報を判断に使用しません。';target.textContent='';regional.textContent='';
+  if(rainSource==='automatic'){rainForecast=null;rainSource='none';$('forecastSummary').textContent='自動予報が古いため無効にしました';}return;
+ }
+ const st=nearbyStation();if(!st)return;
+ const predictions=[1,2,3].map(i=>selectHourly(st.hourly,Date.now()+i*3600000));
+ const vals=predictions.map(p=>p&&Number.isFinite(p.pop)?p.pop:null);
+ const ageMinutes=Math.round(age/60000),dist=Number.isFinite(st.distance)?`（現在地から直線約${st.distance.toFixed(1)}km）`:'';
+ status.textContent=`自動予報：${st.name}${dist}｜取得後 ${ageMinutes}分｜${new Date(gen).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',hour:'2-digit',minute:'2-digit'})} 更新`;
+ target.textContent=predictions.map((p,i)=>{const pop=fmtRain(vals[i]);const mm=p&&Number.isFinite(p.rain_mm)?` / 雨量${p.rain_mm.toFixed(1)}mm/h`:'';return `${i+1}時間先 ${pop}${mm}`}).join('　｜　');
+ regional.textContent='他地点の予報：'+weatherBundle.stations.filter(x=>x.id!==st.id).slice(0,5).map(x=>{let row=selectHourly(x.hourly,Date.now()+3600000);return `${x.name} ${fmtRain(row&&Number.isFinite(row.pop)?row.pop:null)}`}).join(' / ');
+ if(rainSource!=='manual'){rainSource='automatic';rainForecast=vals;$('forecastSummary').textContent=forecastText()+' ／ OpenWeather自動予報（需要予測ではありません）'}
+}
+async function refreshAutoWeather(){
+ const btn=$('owRefresh');btn.disabled=true;$('owStatus').textContent='予報データを確認中…';
+ try{
+  const res=await fetch('./data/weather_latest.json?ts='+Date.now(),{cache:'no-store'});
+  if(!res.ok)throw Error('HTTP '+res.status);
+  const raw=await res.json();if(raw.schema!==1||!Array.isArray(raw.stations))throw Error('JSON形式が正しくありません');
+  weatherBundle=raw;weatherLoadedAt=Date.now();renderAutoWeather();render();
+ }catch(err){$('owStatus').textContent='自動取得不可（'+err.message+'）。手動予報で利用できます。'}
+ finally{btn.disabled=false}
+}
+$('owRefresh').addEventListener('click',refreshAutoWeather);
+
+function render(){const now=jst(),h=now.getHours(),period=pName(h);$('clock').textContent=String(h).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');$('period').textContent=period;
+if(!position){renderAutoWeather();$('where').textContent='未取得';$('headline').textContent='現在地を取得してください';$('guidance').textContent='GPSボタンを押すか検証地点を選択してください。';$('candidates').innerHTML='<p class="muted">GPS取得後に候補を表示します。</p>';return}
+const list=nearest(position.lat,position.lon),near=list[0];$('where').textContent=near.km<3.5?near.name+'付近':'近傍 '+near.name;
+const weather=$('weather').value,elapsed=Number($('elapsed').value);const rain=weather==='rain'||weather==='heavy';
+const nearScope=list.filter(p=>p.km<=1.5),short=list.filter(p=>p.km>1.5&&p.km<=5.0),far=list.filter(p=>p.km>5&&p.km<=12);
+let choice='近隣継続を優先',text='現在地付近でGO受付を継続し、不要な遠距離移動を避けます。';
+if(elapsed>=10&&short.length){choice='近隣の移動先を検討';text='空車が10分程度続いているため、幹線道路を使う短距離移動を候補にします。ただしGO配車状況を最優先してください。'}
+if(elapsed>=20&&short.length){choice='短距離移動を再検討';text='空車が長めのため、現在地周辺と5km圏内の移動先を比較してください。距離の長い移動は原則控えます。'}
+if(rain){text+=' 現在の雨は参考にしますが、受注増を保証するものではありません。'}
+text+=rainForecastNote();
+$('headline').textContent=choice;$('guidance').textContent=text;
+$('caution').textContent=(mode==='manual'?'検証地点モード（実際のGPSではありません）。':'GPS位置による判断（地図マッチングなし）。')+' 推奨方針は仮のルールです。';
+const picks=[]; const add=(tag,arr,n)=>{for(const p of arr){if(picks.length>=3||n<=0)break;if(picks.some(x=>x.p.name===p.name))continue;picks.push({tag,p});n--}};
+add('近隣継続',nearScope,1);add('短距離候補',short,2);if(picks.length<3)add('周辺参考',list.filter(p=>p.km<=8),3-picks.length);if(picks.length<3)add('遠距離参考',far,3-picks.length);
+$('candidates').replaceChildren();picks.forEach((item,i)=>{const p=item.p,el=document.createElement('div');el.className='candidate';const title=document.createElement('div');title.className='ctop';const nam=document.createElement('span');nam.className='name';nam.textContent=(i+1)+'. '+p.name;const km=document.createElement('span');km.className='distance';km.textContent=p.km.toFixed(1)+' km';title.append(nam,km);const tag=document.createElement('div');tag.className='tiny muted';tag.textContent=item.tag+' ／ 直線距離（走行距離ではありません）';const reason=document.createElement('div');reason.className='reason';reason.textContent=p.note+'。'+(p.km>5?'長距離の空車移動となる可能性があるため慎重に。':'GPSから近いエリアとして抽出。実際のGO需要は未確認。');el.append(title,tag,reason);$('candidates').append(el)});
+renderAutoWeather();$('debug').textContent='位置: '+position.lat.toFixed(5)+', '+position.lon.toFixed(5)+' ／ '+(lastFix?lastFix.toLocaleTimeString('ja-JP'):'検証地点')+' ／ モード: '+mode;
+}
+function onFix(pos){if(mode==='manual')return;const {latitude,longitude,accuracy}=pos.coords;if(!Number.isFinite(latitude)||!Number.isFinite(longitude))return;position={lat:latitude,lon:longitude};mode='gps';lastFix=new Date(pos.timestamp);$('gpsBadge').textContent='GPS 取得';setStatus('GPS位置取得済み（精度目安 '+Math.round(accuracy)+'m）／ '+lastFix.toLocaleTimeString('ja-JP')+'更新');render()}
+function onGeoError(err){$('gpsBadge').textContent='GPS 未取得';setStatus('位置情報を取得できません（'+(err&&err.message||'不明なエラー')+'）。Safariの位置情報許可とHTTPSを確認してください。');if(mode!=='manual')position=null;render()}
+function startGps(){if(!navigator.geolocation){onGeoError({message:'このブラウザはGPS非対応'});return}mode='gps';$('testplace').value='';if(gpsWatch!==null)navigator.geolocation.clearWatch(gpsWatch);gpsWatch=navigator.geolocation.watchPosition(onFix,onGeoError,{enableHighAccuracy:true,timeout:15000,maximumAge:10000});setStatus('GPS位置を取得しています…')}
+$('locate').addEventListener('click',startGps);$('refresh').addEventListener('click',render);$('weather').addEventListener('change',render);$('elapsed').addEventListener('change',render);
+$('testplace').addEventListener('change',()=>{const p=PLACES.find(p=>p.name===$('testplace').value);if(!p)return;if(gpsWatch!==null){navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null}mode='manual';lastFix=null;position={lat:p.lat,lon:p.lon};$('gpsBadge').textContent='検証地点';setStatus('検証地点を使用中。実際のGPS位置ではありません。');render()});
+$('clear').addEventListener('click',()=>{position=null;mode='none';$('testplace').value='';$('gpsBadge').textContent='GPS 未取得';setStatus('検証地点を解除しました。GPSを取得してください。');render()});
+$('stop').addEventListener('click',()=>{if(gpsWatch!==null){navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null}setStatus('GPS追従を停止しました。最終地点が表示されている場合は更新時刻に注意してください。');$('gpsBadge').textContent='GPS 停止'});
+for(const p of PLACES){const opt=document.createElement('option');opt.value=p.name;opt.textContent=p.name;$('testplace').append(opt)}
+render();refreshAutoWeather();setInterval(()=>{if(mode==='gps'&&lastFix&&Date.now()-lastFix.getTime()>120000){$('gpsBadge').textContent='GPS 古い';setStatus('GPS更新が2分以上ありません。現在地が古い可能性があります。')}render()},60000);
+</script></body></html>
