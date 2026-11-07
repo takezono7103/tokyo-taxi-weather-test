@@ -1,9 +1,17 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1627"><title>東京タクシー 営業判断・営業用テスト v1.9</title>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1627"><title>東京タクシー 営業判断・営業用テスト v2.0</title>
 <style>
 :root{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color-scheme:dark;background:#0b1627;color:#eef3fa}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#0b1627}main{max-width:780px;margin:auto;padding:12px 12px 90px}header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}h1{font-size:20px;margin:0}h2{font-size:17px;margin:0 0 10px}p{line-height:1.55;margin:7px 0}.muted{color:#aab9cb}.tiny{font-size:12px}.pill{border-radius:99px;padding:5px 9px;background:#253c55;font-size:12px;white-space:nowrap}.panel{background:#15263b;border:1px solid #344860;border-radius:14px;padding:14px;margin-bottom:10px}.topgrid{display:grid;grid-template-columns:1.3fr .7fr .8fr;gap:7px}.stat{background:#20344d;border-radius:10px;padding:9px}.stat label{display:block;font-size:11px;color:#aab9cb}.stat strong{display:block;font-size:16px;margin-top:4px;line-height:1.3}button,select,input{font:inherit}button{background:#2364b8;border:1px solid #538bcf;color:white;border-radius:10px;padding:11px 12px;font-weight:650;cursor:pointer;min-height:43px}button.secondary{background:#273d55;border-color:#53657a}button.positive{background:#087e75;border-color:#27ab9c}button:disabled{opacity:.5}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1}select{background:#23364d;color:#fff;border:1px solid #53657a;padding:10px;border-radius:9px;max-width:100%;min-height:42px}.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}label.field{display:flex;flex-direction:column;gap:5px;font-size:12px;color:#afc2d7}.decision{border:1px solid #287d8b;background:#10363d;border-radius:12px;padding:13px;margin-top:10px}.decision b{font-size:19px}.candidate{border:1px solid #405873;border-radius:11px;padding:12px;margin:8px 0;background:#172c43}.candidate:first-child{border-color:#46b29d}.ctop{display:flex;align-items:center;justify-content:space-between;gap:8px}.name{font-size:18px;font-weight:750}.distance{font-variant-numeric:tabular-nums;color:#b6d2eb}.reason{color:#c2cfdf;font-size:13px;margin-top:7px;line-height:1.5}.warning{border-left:3px solid #f0b95e;padding:8px 12px;background:#3a3027;border-radius:5px;font-size:13px}.ok{color:#63d1ae}.divider{border-top:1px solid #35465b;margin:12px 0}.hide{display:none}details summary{cursor:pointer;font-weight:700;padding:5px 0}a{color:#a5d1ff}#toast{font-size:12px;color:#f1c77d;margin-top:8px}.footer{font-size:12px;color:#95a6bb;margin-top:15px;line-height:1.65} input[type=number]{width:100%;min-height:42px;padding:9px;color:#fff;background:#23364d;border:1px solid #53657a;border-radius:9px} .gpsnotice{font-size:12px;color:#bdd0df;margin:9px 0} @media(max-width:420px){h1{font-size:17px}.topgrid{grid-template-columns:1fr 1fr 1fr}.stat{padding:7px}.stat strong{font-size:14px}main{padding-left:9px;padding-right:9px}.panel{padding:11px}}
+
+.compare-head{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.compare-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px}
+.compare-card{padding:11px;border:1px solid #415b70;border-radius:11px;background:#1a2e45}
+.compare-card strong{font-size:16px}.compare-metrics{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:9px 0}
+.compare-metrics div{background:#233951;padding:8px;border-radius:7px;font-size:13px}
+.compare-metrics small{display:block;color:#acc1d5;font-size:11px;margin-bottom:3px}
+.compare-status{color:#ddc489;font-size:12px;margin-top:7px;line-height:1.5}
 </style></head><body><main>
-<header><div><h1>🚕 東京タクシー 営業判断</h1><div class="muted tiny">営業用テスト v1.9 ／ GO配車専用</div></div><span class="pill" id="gpsBadge">GPS 未取得</span></header>
+<header><div><h1>🚕 東京タクシー 営業判断</h1><div class="muted tiny">営業用テスト v2.0 ／ GO配車専用</div></div><span class="pill" id="gpsBadge">GPS 未取得</span></header>
 <section class="panel"><div class="topgrid"><div class="stat"><label>現在地（近似）</label><strong id="where">未取得</strong></div><div class="stat"><label>現在時刻</label><strong id="clock">--:--</strong></div><div class="stat"><label>時間帯</label><strong id="period">--</strong></div></div>
 <div class="actions" style="margin-top:10px"><button class="positive" id="locate">📍 現在地を取得</button><button class="secondary" id="refresh">↻ 判断を更新</button></div><div class="gpsnotice" id="gpsInfo">位置情報を許可してください。GPSが使えないときは下の検証地点を選択できます。</div>
 <div class="controls"><label class="field">現在の天候（手動確認）<select id="weather"><option value="unknown">未確認</option><option value="dry">雨なし</option><option value="rain">雨</option><option value="heavy">強い雨</option></select></label><label class="field">空車になってから（任意）<select id="elapsed"><option value="0">未計測</option><option value="5">5分程度</option><option value="10">10分程度</option><option value="20">20分以上</option></select></label></div>
@@ -18,9 +26,14 @@
 <p id="forecastSummary" class="tiny muted" aria-live="polite">雨予報は未入力です。</p><p class="tiny muted">確認先：<a href="https://www.jma.go.jp/bosai/forecast/" target="_blank" rel="noopener noreferrer">気象庁の天気予報</a> ／ <a href="https://www.jma.go.jp/bosai/nowc/" target="_blank" rel="noopener noreferrer">雨雲の動き</a></p>
 </div>
 <div class="decision" aria-live="polite"><div class="tiny muted">現在の判断方針</div><b id="headline">現在地を取得してください</b><p id="guidance">現在地を確認後、近隣継続・短距離移動・遠距離移動の候補を比較します。</p><div id="caution" class="tiny muted"></div></div></section>
+<section class="panel" id="comparisonPanel"><div class="compare-head"><h2 style="margin:0">🧭 空車移動・天気の比較（v2.0）</h2><span class="pill">需要予測なし</span></div>
+<p class="muted tiny">GO受注率の実測値は未接続です。現在地に留まる選択と、周辺候補への空車移動を比較します。直線距離は走行距離や所要時間ではありません。</p>
+<div class="controls"><label class="field">移動の考え方<select id="riskPref"><option value="conserve">空車距離を抑える（標準）</option><option value="nearby">短距離移動も検討</option></select></label><label class="field">道路条件（任意・手動）<select id="roadPref"><option value="unknown">未確認</option><option value="smooth">大通りを走りやすい</option><option value="difficult">路駐・右左折が多い</option></select></label></div>
+<div id="compareSummary" class="decision"><b>GPS取得後に比較を表示</b><p>天気と空車距離の情報を並べて確認します。</p></div>
+<div id="compareCards" class="compare-grid"></div><p class="tiny muted">※ 参照予報地点との距離が大きい場合は、現地の天候とずれる可能性があります。道路規制、イベント、鉄道遅延は自動取得していません。</p></section>
 <section class="panel"><h2>次の営業候補 TOP 3</h2><div class="tiny muted">現在地からの直線距離が近いエリアを参考表示。GOの実需要・配車確率ランキングではありません。</div><div id="candidates"><p class="muted">GPS取得後に候補を表示します。</p></div><p class="warning">🚧 この版は実績連動の需要予測ではありません。迎車・停車可否、規制、実際のGO受付状況を優先してください。運転中は操作しないでください。</p></section>
 <section class="panel"><details><summary>入力・検証・情報源（停車中に確認）</summary><p class="muted tiny">GPSが受信できない場合に限り、検証地点を選択してください。選択すると現在地の自動追従は停止します。</p><label class="field">検証地点（GPS代替）<select id="testplace"><option value="">地点を選択</option></select></label><div class="divider"></div><div class="actions"><button class="secondary" id="clear">検証地点を解除</button><button class="secondary" id="stop">GPS追従を停止</button></div><p class="muted tiny">周辺状況：<a href="https://www.jartic.or.jp/" target="_blank" rel="noopener noreferrer">JARTIC道路情報</a> ／ <a href="https://www.jma.go.jp/bosai/forecast/" target="_blank" rel="noopener noreferrer">気象庁</a></p><p class="muted tiny">外部サイトの内容は本画面の順位に自動反映されません。</p><div id="debug" class="tiny muted"></div></details></section>
-<div class="footer">データ出典：都市内の代表地点（静的な参考座標）。評価は直線距離と空車時間・時間帯による試験用ルール。雨予報は注意文に反映し、候補点数・順位は変更しません。また、過去25乗務の実績や鉄道・イベント・交通情報のリアルタイム配信は未接続です。GPS座標・乗務履歴・手入力の降水確率は外部送信しません。天気データは公開の代表地点別JSONを受信します。GPSはHTTPS上のブラウザで許可が必要です。</div>
+<div class="footer">データ出典：都市内の代表地点（静的な参考座標）。評価は直線距離と空車時間・時間帯による試験用ルール。v2.0の比較は距離と雨予報を併記する補助表示で、GO需要予測や走行時間推定は行いません。雨予報は注意文に反映し、候補点数・順位は変更しません。また、過去25乗務の実績や鉄道・イベント・交通情報のリアルタイム配信は未接続です。GPS座標・乗務履歴・手入力の降水確率は外部送信しません。天気データは公開の代表地点別JSONを受信します。GPSはHTTPS上のブラウザで許可が必要です。</div>
 </main>
 <script>
 'use strict';
@@ -125,6 +138,59 @@ function startGps(){if(!navigator.geolocation){onGeoError({message:'このブラ
 $('locate').addEventListener('click',startGps);$('refresh').addEventListener('click',render);$('weather').addEventListener('change',render);$('elapsed').addEventListener('change',render);
 $('testplace').addEventListener('change',()=>{const p=PLACES.find(p=>p.name===$('testplace').value);if(!p)return;if(gpsWatch!==null){navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null}mode='manual';lastFix=null;position={lat:p.lat,lon:p.lon};$('gpsBadge').textContent='検証地点';setStatus('検証地点を使用中。実際のGPS位置ではありません。');render()});
 $('clear').addEventListener('click',()=>{position=null;mode='none';$('testplace').value='';$('gpsBadge').textContent='GPS 未取得';setStatus('検証地点を解除しました。GPSを取得してください。');render()});
+
+// v2.0: compare empty-mile exposure and regional forecast without inferring GO demand.
+function activeWeather(){
+ if(!weatherBundle||!Array.isArray(weatherBundle.stations))return null;
+ const age=Date.now()-Date.parse(weatherBundle.generated_at);
+ return Number.isFinite(age)&&age>=-600000&&age<=7200000?weatherBundle.stations:null;
+}
+function stationForPlace(p){
+ const stations=activeWeather();if(!stations||!stations.length)return null;
+ return stations.map(st=>({st,km:earthKm(p.lat,p.lon,st.lat,st.lon)})).sort((a,b)=>a.km-b.km)[0];
+}
+function areaForecast(p){
+ const nearest=stationForPlace(p);
+ if(!nearest)return {short:'予報なし／更新を確認',status:'自動予報なし',wide:false};
+ const vals=[1,2,3].map(i=>{const row=selectHourly(nearest.st.hourly,Date.now()+i*3600000);return row&&Number.isFinite(row.pop)?Math.round(row.pop*100):null});
+ const weather=vals.map((v,i)=>(i+1)+'h '+(v===null?'—':v+'%')).join(' / ');
+ return {short:weather,status:'参照：'+nearest.st.name+'（直線'+nearest.km.toFixed(1)+'km）',wide:nearest.km>5};
+}
+function renderComparison(){
+ const summary=$('compareSummary'),cards=$('compareCards');cards.replaceChildren();
+ if(!position){summary.replaceChildren();const b=document.createElement('b');b.textContent='GPS取得後に比較を表示';const p=document.createElement('p');p.textContent='現在地・周辺候補の天気と移動距離を比較します。';summary.append(b,p);return}
+ const near=nearest(position.lat,position.lon);
+ const reference={name:'現在地で継続',lat:position.lat,lon:position.lon,note:'GO受付状態を維持し、不要な長距離空車移動を避ける'};
+ const options=near.filter(p=>p.km>.5&&p.km<=5).slice(0,3);
+ const elapsed=Number($('elapsed').value),risk=$('riskPref').value,road=$('roadPref').value;
+ let heading='まず現在地周辺の継続を基準に比較';
+ let guidance='実績に基づくGO需要の優劣は未確認。近隣候補への移動には空車距離が発生します。';
+ if(elapsed>=10&&options.length){heading='短距離移動も比較';guidance='空車10分以上の申告があるため5km以内の候補を表示。移動先で受注が増える保証はありません。';}
+ if(elapsed>=20&&options.length){heading='長めの空車時間：現在地と短距離候補を再比較';guidance='空車20分以上の申告があります。迎車しやすい道路を選びつつ空車走行の長距離化を避けてください。';}
+ if(risk==='conserve')guidance+=' 標準設定は現在地継続を優先します。';
+ else guidance+=' 短距離移動の検討を許容する設定です。';
+ if(road==='difficult')guidance+=' 道路条件が悪い申告のため、無理な周回より走りやすい道路への移動を優先して検討。';
+ const a=areaForecast(reference);
+ const block=document.createElement('b');block.textContent=heading;
+ const note=document.createElement('p');note.textContent=guidance+' 現在地の雨予報：'+a.short+'。';summary.replaceChildren(block,note);
+ for(const [i,p] of [reference,...options].entries()){
+  const f=areaForecast(p),km=i===0?0:p.km;
+  const c=document.createElement('div');c.className='compare-card';
+  const title=document.createElement('strong');title.textContent=(i===0?'基準':'候補'+i)+'｜'+p.name;
+  const m=document.createElement('div');m.className='compare-metrics';
+  const d=document.createElement('div'),dLabel=document.createElement('small');dLabel.textContent='現在地からの直線距離';d.append(dLabel,document.createTextNode(i===0?'0 km':km.toFixed(1)+' km'));
+  const w=document.createElement('div'),wLabel=document.createElement('small');wLabel.textContent='今後1〜3hの降水確率';w.append(wLabel,document.createTextNode(f.short));m.append(d,w);
+  const status=document.createElement('div');status.className='compare-status';status.textContent=f.status+(f.wide?' ／ 代表地点が5km超のため参考程度':'')+' ／ '+p.note;
+  if(p.name.includes('六本木')||p.name.includes('下北沢'))status.textContent+=' ／ 狭い道・路駐・迎車難易度に注意';
+  c.append(title,m,status);cards.append(c);
+ }
+ if(!options.length){const p=document.createElement('p');p.textContent='5km以内の候補は未抽出。遠距離移動を無理に推奨しません。';cards.append(p)}
+}
+$('riskPref').addEventListener('change',renderComparison);
+$('roadPref').addEventListener('change',renderComparison);
+const renderBase=render;
+render=function(){renderBase();renderComparison()};
+
 $('stop').addEventListener('click',()=>{if(gpsWatch!==null){navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null}setStatus('GPS追従を停止しました。最終地点が表示されている場合は更新時刻に注意してください。');$('gpsBadge').textContent='GPS 停止'});
 for(const p of PLACES){const opt=document.createElement('option');opt.value=p.name;opt.textContent=p.name;$('testplace').append(opt)}
 render();refreshAutoWeather();setInterval(()=>{if(mode==='gps'&&lastFix&&Date.now()-lastFix.getTime()>120000){$('gpsBadge').textContent='GPS 古い';setStatus('GPS更新が2分以上ありません。現在地が古い可能性があります。')}render()},60000);
