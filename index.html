@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1627"><title>東京タクシー 営業判断・営業用テスト v2.2</title>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b1627"><title>東京タクシー 営業判断・営業用テスト v3.0</title>
 <style>
 :root{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color-scheme:dark;background:#0b1627;color:#eef3fa}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#0b1627}main{max-width:780px;margin:auto;padding:12px 12px 90px}header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}h1{font-size:20px;margin:0}h2{font-size:17px;margin:0 0 10px}p{line-height:1.55;margin:7px 0}.muted{color:#aab9cb}.tiny{font-size:12px}.pill{border-radius:99px;padding:5px 9px;background:#253c55;font-size:12px;white-space:nowrap}.panel{background:#15263b;border:1px solid #344860;border-radius:14px;padding:14px;margin-bottom:10px}.topgrid{display:grid;grid-template-columns:1.3fr .7fr .8fr;gap:7px}.stat{background:#20344d;border-radius:10px;padding:9px}.stat label{display:block;font-size:11px;color:#aab9cb}.stat strong{display:block;font-size:16px;margin-top:4px;line-height:1.3}button,select,input{font:inherit}button{background:#2364b8;border:1px solid #538bcf;color:white;border-radius:10px;padding:11px 12px;font-weight:650;cursor:pointer;min-height:43px}button.secondary{background:#273d55;border-color:#53657a}button.positive{background:#087e75;border-color:#27ab9c}button:disabled{opacity:.5}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1}select{background:#23364d;color:#fff;border:1px solid #53657a;padding:10px;border-radius:9px;max-width:100%;min-height:42px}.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}label.field{display:flex;flex-direction:column;gap:5px;font-size:12px;color:#afc2d7}.decision{border:1px solid #287d8b;background:#10363d;border-radius:12px;padding:13px;margin-top:10px}.decision b{font-size:19px}.candidate{border:1px solid #405873;border-radius:11px;padding:12px;margin:8px 0;background:#172c43}.candidate:first-child{border-color:#46b29d}.ctop{display:flex;align-items:center;justify-content:space-between;gap:8px}.name{font-size:18px;font-weight:750}.distance{font-variant-numeric:tabular-nums;color:#b6d2eb}.reason{color:#c2cfdf;font-size:13px;margin-top:7px;line-height:1.5}.warning{border-left:3px solid #f0b95e;padding:8px 12px;background:#3a3027;border-radius:5px;font-size:13px}.ok{color:#63d1ae}.divider{border-top:1px solid #35465b;margin:12px 0}.hide{display:none}details summary{cursor:pointer;font-weight:700;padding:5px 0}a{color:#a5d1ff}#toast{font-size:12px;color:#f1c77d;margin-top:8px}.footer{font-size:12px;color:#95a6bb;margin-top:15px;line-height:1.65} input[type=number]{width:100%;min-height:42px;padding:9px;color:#fff;background:#23364d;border:1px solid #53657a;border-radius:9px} .gpsnotice{font-size:12px;color:#bdd0df;margin:9px 0} @media(max-width:420px){h1{font-size:17px}.topgrid{grid-template-columns:1fr 1fr 1fr}.stat{padding:7px}.stat strong{font-size:14px}main{padding-left:9px;padding-right:9px}.panel{padding:11px}}
 
@@ -17,14 +17,98 @@
 #candidates .reason{font-size:12px;margin-top:3px}
 #gpsInfo,#locationCheck{font-size:11px}
 @media(min-width:650px){#candidates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}#candidates .candidate{margin:0}#candidates .name{font-size:15px}}
+#logPanel summary{display:flex;align-items:center;justify-content:space-between;gap:10px}#logBadge{font-weight:500}#logStatus{min-height:25px}#logCount,#logLast{font-size:15px}
+</style>
+<style>
+.importfield{display:block;padding:10px 12px;border:1px solid #35516a;border-radius:10px;margin:7px 0;background:#10243a}
+.importfield input{display:block;width:100%;max-width:100%;margin-top:8px;font-size:13px}
+.analysis-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px;margin:10px 0}
+.analysis-kpi{background:#16283b;border-radius:10px;padding:12px}
+.analysis-kpi strong{display:block;font-size:20px;margin-top:5px}
+.analysis-table{width:100%;border-collapse:collapse;font-size:12px}
+.analysis-table th,.analysis-table td{padding:8px 5px;border-bottom:1px solid #34475e;text-align:left}
+.analysis-table td:nth-child(n+2){text-align:right}
+.analysis-table th:nth-child(n+2){text-align:right}
+.analysis-scroll{overflow-x:auto}.manual-import{border:1px solid #43617c;border-radius:11px;background:#102b3d;padding:12px;margin:10px 0}.manual-import textarea{width:100%;min-height:122px;resize:vertical;background:#23364d;color:white;border:1px solid #53657a;border-radius:9px;padding:10px;font-size:16px;line-height:1.6}.manual-import input[type=date]{background:#23364d;color:white;border:1px solid #53657a;border-radius:9px;padding:10px;font-size:16px;max-width:100%}
+</style>
+<style>
+.go-main{background:#102e3a;border-color:#3b8d9a}.go-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:9px 0}.go-row button{min-height:52px;font-size:15px}.go-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.go-metrics .stat strong{font-size:17px}.go-log{max-height:250px;overflow:auto}.go-log-item{border-bottom:1px solid #35465b;padding:7px 3px;font-size:12px}.go-status{font-size:16px;font-weight:700;margin:7px 0}.go-note{font-size:12px;color:#c8d5df;line-height:1.6}.go-manual{background:#142c40;padding:10px;border-radius:8px}.go-manual input{width:100%;background:#23364d;color:#fff;border:1px solid #53657a;border-radius:8px;padding:9px;min-height:42px}.go-manual label{font-size:12px;display:block;margin:6px 0}.go-log-actions{margin-top:8px}.go-log-actions button{font-size:13px}
 </style></head><body><main>
-<header><div><h1>🚕 東京タクシー 営業判断</h1><div class="muted tiny">営業用テスト v2.2 ／ GO配車専用・簡易表示</div></div><span class="pill" id="gpsBadge">GPS 未取得</span></header>
+<header><div><h1>🚕 東京タクシー 営業判断</h1><div class="muted tiny">営業用テスト v3.0 ／ GO配車専用・受付ログ試験版</div></div><span class="pill" id="gpsBadge">GPS 未取得</span></header>
 <section class="panel"><div class="topgrid"><div class="stat"><label>現在地（最寄り登録地点）</label><strong id="where">未取得</strong></div><div class="stat"><label>現在時刻</label><strong id="clock">--:--</strong></div><div class="stat"><label>時間帯</label><strong id="period">--</strong></div></div>
 <div class="actions" style="margin-top:10px"><button class="positive" id="locate">📍 現在地を取得</button><button class="secondary" id="refresh">↻ 判断を更新</button></div><div class="gpsnotice" id="gpsInfo">位置情報を許可してください。GPSが使えないときは下の検証地点を選択できます。</div>
 <p class="tiny muted" id="locationCheck" aria-live="polite">GPS未取得。地点ラベルはGPS座標から計算します。</p>
 <div class="decision" aria-live="polite"><div class="tiny muted">現在の判断方針</div><b id="headline">現在地を取得してください</b><p id="guidance">現在地を確認後、近隣継続・短距離移動・遠距離移動の候補を比較します。</p><div id="caution" class="tiny muted"></div></div><div id="quickForecast" class="quick-weather" aria-live="polite">☁ 天気予報を確認中…</div></section>
-<section class="panel"><h2>次の営業候補 TOP 3</h2><div class="tiny muted">現在地から近い登録地点を参考表示。GOの実需要・配車確率ランキングではありません。</div><div id="candidates"><p class="muted">GPS取得後に候補を表示します。</p></div><p class="warning">🚧 この版は実績連動の需要予測ではありません。迎車・停車可否、規制、実際のGO受付状況を優先してください。運転中は操作しないでください。</p></section>
-<section class="panel" id="comparisonPanel"><details><summary>🧭 移動・天気の詳細比較（停車中に確認）</summary><div class="compare-head"><h2 style="margin:0">🧭 空車移動・天気の比較（v2.2）</h2><span class="pill">需要予測なし</span></div>
+<section class="panel"><h2>次の営業候補 TOP 3</h2><div class="tiny muted">現在地から近い登録地点を参考表示。v3.0集計JSONの読み込みで時間帯別の過去件数を併記。順位は距離順のままです。GOの実需要・配車確率ランキングではありません。</div><div id="candidates"><p class="muted">GPS取得後に候補を表示します。</p></div><p class="warning">🚧 この版は実績連動の需要予測ではありません。迎車・停車可否、規制、実際のGO受付状況を優先してください。運転中は操作しないでください。</p></section>
+
+<section class="panel go-main" id="goPanel">
+<h2>🚕 GO受付ログ（v3.0・試験版）</h2>
+<p class="go-note">GOアプリとの自動連携はありません。操作した時刻を記録するだけで、配車を自動検知しません。<b>運転中に操作しないでください。</b> 乗務中は安全優先、停車後の事後入力も可能です。</p>
+<div class="go-status" id="goState" aria-live="polite">受付状態：未記録</div>
+<div class="go-metrics"><div class="stat"><label>今回の受付待ち</label><strong id="goElapsed">—</strong></div><div class="stat"><label>受注記録数</label><strong id="goOrders">0件</strong></div><div class="stat"><label>受付→受注 平均</label><strong id="goAverage">—</strong></div></div>
+<div class="go-row"><button class="positive" id="goOpen">GO受付開始</button><button id="goAccepted">GO受注</button><button class="secondary" id="goDropoff">降車・完了</button><button class="secondary" id="goCancel">受付取消・中断</button></div>
+<p class="go-note" id="goNotice" aria-live="polite">「GO受付開始」→「GO受注」の順に押した場合のみ待ち時間を計算します。降車後のGO受付再開は別操作です。</p>
+<details><summary>📝 事後入力・詳細ログ・バックアップ（停車中）</summary>
+<div class="go-manual"><p class="go-note">事後入力は実際の操作・受注時刻が分かる場合だけ使用してください。入力が曖昧な場合は空車時間の計算に含めません。時刻は日本時間。</p>
+<label>イベント種別<select id="goManualType"><option value="open">GO受付開始</option><option value="accept">GO受注</option><option value="dropoff">降車・完了</option><option value="cancel">受付取消・中断</option></select></label>
+<label>日時<input id="goManualAt" type="datetime-local"></label>
+<div class="actions"><button class="secondary" id="goManualAdd">この時刻を記録</button></div></div>
+<p class="go-note">現在のページが非表示だった間を挟んだ待ち時間は「画面外あり」として区別します。時間は端末時計に基づきます。GPS地点はイベント時に現在地が取得済みの場合のみ記録し、正確なGO受付位置とは保証しません。</p>
+<div class="go-log" id="goLogItems">記録なし</div>
+<div class="actions go-log-actions"><button class="secondary" id="goExportJson">GOログ JSON保存</button><button class="secondary" id="goExportCsv">GOログ CSV保存</button><button class="secondary" id="goDelete">GOログ全削除</button></div>
+<p class="go-note">端末ブラウザ内だけに保存します。Safariのデータ消去や端末変更で失われるため、乗務終了後にJSONバックアップを保存してください。個人情報・乗客情報は記録しないでください。</p>
+</details>
+</section>
+<section class="panel" id="evidencePanel"><details id="evidenceDetails"><summary>📍 時間帯別の実績を候補に表示（v3.0・停車中）</summary>
+<p class="tiny muted">v3.0で書き出した複数乗務集計JSONなら時間帯別の過去乗車件数を候補に併記します。v2.7以前の集計JSONでは終日の件数のみ表示します。データはブラウザ内のみで解析し、サーバー送信・自動保存しません。</p>
+<label class="importfield">複数乗務の集計JSON <input id="evidenceFile" type="file" accept=".json,application/json"></label>
+<div class="actions"><button class="secondary" id="evidenceLoad">実績を読み込む</button><button class="secondary" id="evidenceClear">実績の表示を解除</button></div>
+<p class="tiny muted" id="evidenceStatus" aria-live="polite">実績未読込。候補は近さ順で表示します。</p>
+<div class="analysis-grid" id="evidenceSummary"></div>
+<p class="warning">入力座標に基づく件数とGPXの時刻近接による推定件数は別表示です。いずれもGO受付数、受注率、空車時間、需要や移動の効果を示しません。時間帯別の過去件数もGO受付数・受注確率・空車時間を示しません。入力ファイルに含まれない乗車記録は反映されません。</p>
+</details></section>
+<section class="panel" id="logPanel"><details id="logDetails"><summary>🧭 GPS観測ログ <span id="logBadge" class="pill">記録停止中</span></summary>
+<p class="muted tiny">停車中に「記録開始」を押した場合のみ、このブラウザ内にGPS観測点を約2分間隔で保存します。GO受注・実車・空車は自動判定しません。Safariが非表示の間は記録できず、欠測扱いです。</p>
+<div class="actions"><button class="positive" id="logStart">● 記録開始</button><button class="secondary" id="logStop" disabled>■ 記録停止</button></div>
+<p id="logStatus" class="tiny muted" aria-live="polite">記録していません。GPS取得後、停車中に開始してください。</p>
+<div class="controls"><div class="stat"><label>保存したGPS観測点</label><strong id="logCount">0点</strong></div><div class="stat"><label>最終観測</label><strong id="logLast">—</strong></div></div>
+<div class="actions" style="margin-top:9px"><button class="secondary" id="logExportJson">JSONバックアップ</button><button class="secondary" id="logExportCsv">CSV出力</button></div>
+<div class="actions" style="margin-top:8px"><button class="secondary" id="logDelete">端末内の観測ログを削除</button></div>
+<p class="tiny muted">保存先はこのブラウザのlocalStorageです。Safariのデータ消去やストレージ不足で失われることがあります。乗務終了後に必ずバックアップしてください。GPSの推定距離は走行距離ではありません。アプリが非表示になった場合、記録を自動停止します。</p>
+</details></section>
+
+<section class="panel" id="shiftImportPanel"><details id="shiftImportDetails"><summary>📊 乗務後分析：GPX・日報時刻の照合（v3.0）</summary>
+<p class="tiny muted">ファイルはこの端末内で解析します。サーバー送信や端末内への自動永続保存はしません。Safariを閉じる前に分析JSONを保存してください。日報PDFはスキャン画像のため、この画面では自動解析しません。乗車時刻を下の欄にまとめて入力すれば、CSV作成なしでGPXと照合できます。</p>
+<label class="importfield">① 走行経路 GPX（Waylogなど）<input id="shiftGpx" type="file" accept=".gpx,application/gpx+xml,text/xml"></label>
+<label class="importfield">② 日報CSVを選択（任意。下の時刻直接入力とどちらか一方）<input id="shiftRides" type="file" accept=".csv,text/csv"></label>
+<div class="manual-import"><strong>✍ 日報の乗車時刻を直接入力（CSV不要）</strong>
+<p class="tiny muted">乗務開始日を選び、日報を見ながら時刻を改行またはスペース区切りで入力。例：08:15 10:32 15:04 00:25。深夜0〜4時は翌日として扱います。時刻は日本時間です。CSVファイルを指定した場合は、入力した時刻を使用せずCSVを優先します。</p>
+<label class="field">乗務開始日（日本時間）<input id="shiftDate" type="date"></label>
+<label class="field" style="margin-top:9px">乗車時刻（時:分）<textarea id="shiftTimes" rows="5" spellcheck="false" placeholder="08:15
+10:32
+15:04
+00:25"></textarea></label>
+<div class="actions" style="margin-top:9px"><button class="secondary" id="shiftTemplate">直接入力をCSV保存</button></div>
+<p id="manualStatus" class="tiny muted">この入力内容は自動保存されません。必要ならCSVを保存してください。</p>
+</div>
+<p class="tiny muted">CSV使用時の必須列：<code>pickup_datetime</code>（例：2026-11-06T10:30:00+09:00）、<code>pickup_lat</code>、<code>pickup_lon</code>。日時だけの行も乗車件数に数えますが、地点不明として扱います。列名が異なるCSVは専用形式に直してから読み込んでください。</p>
+<p class="tiny muted">v3.0では乗車時刻の前後3分のGPS点を照合します。CSV座標がある場合は距離差も表示します（500m以内でも真の乗車位置と確定はしません）。</p>
+<div class="actions"><button class="secondary" id="shiftAnalyze">📈 読み込み・分析</button><button class="secondary" id="shiftExport" disabled>分析JSONを保存</button><button class="secondary" id="shiftReset">表示だけクリア</button></div>
+<div id="shiftStatus" class="tiny muted" aria-live="polite">未読み込み。GPXと日報時刻を照合します。</div>
+<div id="shiftReport"></div>
+<p class="tiny muted">※時刻照合は乗車の証明ではありません。GPX区間距離はGPS点間の直線を足した参考値です。走行距離や空車距離、実車時間ではありません。停車・トンネル・欠測や異常点は推計に影響します。CSV乗車地点はGO配車受付地点ではありません。</p>
+</details></section>
+
+<section class="panel" id="batchAnalysisPanel"><details id="batchDetails"><summary>📚 複数乗務まとめ分析（v3.0）</summary>
+<p class="tiny muted">v2.6以降で保存した「分析JSON」を複数選択すると、乗車記録の時間帯・地点とGPX照合の状況をまとめます。ファイルは端末内で解析し、サーバーには送信しません。日報CSVやGPXを直接まとめて読み取る機能ではありません。</p>
+<label class="importfield">分析JSONファイル（複数選択可）<input id="batchFiles" type="file" accept=".json,application/json" multiple></label>
+<label class="importfield"><input id="batchIncludeCurrent" type="checkbox" style="width:auto;display:inline;margin:0 6px 0 0">この画面で直前に分析した乗務も含める</label>
+<div class="actions"><button id="batchAnalyze" class="secondary">📊 複数乗務を集計</button><button id="batchExport" class="secondary" disabled>集計JSON保存</button><button id="batchClear" class="secondary">集計表示クリア</button></div>
+<p class="tiny muted" id="batchStatus" aria-live="polite">未集計。重複ファイルは集計から除外します。</p>
+<div id="batchReport"></div>
+<p class="warning">注意：時間帯別の乗車件数は「入力された乗車記録」の集計です。乗車記録の網羅性が未検証なら需要ランキングにはできません。空車時間・GO配車受付→受注時間・実車率は算出しません。GPXから得た近隣地点は推定であり、実際の乗車位置ではありません。</p>
+</details></section>
+<section class="panel" id="comparisonPanel"><details><summary>🧭 移動・天気の詳細比較（停車中に確認）</summary><div class="compare-head"><h2 style="margin:0">🧭 空車移動・天気の比較（v3.0）</h2><span class="pill">需要予測なし</span></div>
 <p class="muted tiny">GO受注率の実測値は未接続です。現在地に留まる選択と、周辺候補への空車移動を比較します。直線距離は走行距離や所要時間ではありません。</p>
 <div class="controls"><label class="field">候補の検索半径（直線）<select id="searchRadius"><option value="3">3 km</option><option value="5" selected>5 km（標準）</option><option value="10">10 km（参考）</option></select></label><label class="field">候補地点数（データ登録）<div class="stat" id="placeCount" style="font-size:15px">—</div></label></div>
 <div class="controls"><label class="field">移動の考え方<select id="riskPref"><option value="conserve">空車距離を抑える（標準）</option><option value="nearby">短距離移動も検討</option></select></label><label class="field">道路条件（任意・手動）<select id="roadPref"><option value="unknown">未確認</option><option value="smooth">大通りを走りやすい</option><option value="difficult">路駐・右左折が多い</option></select></label></div>
@@ -44,13 +128,13 @@
 </div>
 </details></section>
 <section class="panel"><details><summary>入力・検証・情報源（停車中に確認）</summary><p class="muted tiny">GPSが受信できない場合に限り、検証地点を選択してください。選択すると現在地の自動追従は停止します。</p><label class="field">検証地点（GPS代替）<select id="testplace"><option value="">地点を選択</option></select></label><div class="divider"></div><div class="actions"><button class="secondary" id="clear">検証地点を解除</button><button class="secondary" id="stop">GPS追従を停止</button></div><p class="muted tiny">周辺状況：<a href="https://www.jartic.or.jp/" target="_blank" rel="noopener noreferrer">JARTIC道路情報</a> ／ <a href="https://www.jma.go.jp/bosai/forecast/" target="_blank" rel="noopener noreferrer">気象庁</a></p><p class="muted tiny">外部サイトの内容は本画面の順位に自動反映されません。</p><div id="debug" class="tiny muted"></div></details></section>
-<div class="footer">データ出典：都市内の代表地点（静的な参考座標）。候補地点は静的な近似座標、現在地と予報地点の距離は球面距離で計算。候補順位は近さ順でGO需要順ではありません。v2.2の比較は距離と雨予報を併記する補助表示で、GO需要予測や走行時間推定は行いません。雨予報は注意文に反映し、候補点数・順位は変更しません。また、過去25乗務の実績や鉄道・イベント・交通情報のリアルタイム配信は未接続です。GPS座標・乗務履歴・手入力の降水確率は外部送信しません。天気データは公開の8代表地点別JSONを受信します。候補エリア地点数とは別です。GPSはHTTPS上のブラウザで許可が必要です。</div>
+<div class="footer">データ出典：都市内の代表地点（静的な参考座標）。候補地点は静的な近似座標、現在地と予報地点の距離は球面距離で計算。候補順位は近さ順でGO需要順ではありません。集計JSONの地域別・時間帯別件数はGO需要や実車化率ではありません。v2.3の比較は距離と雨予報を併記する補助表示で、GO需要予測や走行時間推定は行いません。雨予報は注意文に反映し、候補点数・順位は変更しません。また、過去25乗務の実績や鉄道・イベント・交通情報のリアルタイム配信は未接続です。v3.0では操作時刻を記録したGO受付ログを追加しましたが、GOアプリから直接取得した情報ではありません。GPS観測ログは明示的に記録開始したときだけブラウザ内に保存し、外部送信しません。天気データは公開の8代表地点別JSONを受信します。候補エリア地点数とは別です。GPSはHTTPS上のブラウザで許可が必要です。</div>
 </main>
 <script>
 'use strict';
 const PLACES=[{"name": "品川・高輪", "lat": 35.6289, "lon": 139.7388, "note": "品川駅周辺、大通り優先"}, {"name": "大崎", "lat": 35.6197, "lon": 139.7286, "note": "大崎駅周辺、大通り優先"}, {"name": "五反田", "lat": 35.6266, "lon": 139.7234, "note": "駅前交差点の迎車に注意"}, {"name": "浜松町・芝", "lat": 35.6553, "lon": 139.7571, "note": "第一京浜など主要道路"}, {"name": "新橋・汐留", "lat": 35.665, "lon": 139.7597, "note": "駅周辺の停車可否を確認"}, {"name": "虎ノ門", "lat": 35.6676, "lon": 139.7497, "note": "幹線道路中心"}, {"name": "六本木", "lat": 35.6628, "lon": 139.731, "note": "路駐・右左折・迎車位置に注意"}, {"name": "赤坂", "lat": 35.6724, "lon": 139.736, "note": "外堀通り等の幹線道路"}, {"name": "青山・表参道", "lat": 35.6657, "lon": 139.7128, "note": "青山通り等の幹線道路"}, {"name": "渋谷", "lat": 35.658, "lon": 139.7016, "note": "駅周辺は混雑・規制に注意"}, {"name": "恵比寿", "lat": 35.6467, "lon": 139.7101, "note": "明治通り等を意識"}, {"name": "目黒", "lat": 35.634, "lon": 139.7155, "note": "目黒通り等の幹線道路"}, {"name": "新宿", "lat": 35.6909, "lon": 139.7003, "note": "新宿駅周辺は交通規制に注意"}, {"name": "四谷", "lat": 35.6862, "lon": 139.73, "note": "新宿通り・外堀通り"}, {"name": "市ヶ谷", "lat": 35.692, "lon": 139.7357, "note": "靖国通り・外堀通り"}, {"name": "神田", "lat": 35.6917, "lon": 139.7709, "note": "駅周辺は細街路に注意"}, {"name": "東京駅・丸の内", "lat": 35.6812, "lon": 139.7671, "note": "乗降可能な道路を確認"}, {"name": "日本橋", "lat": 35.6827, "lon": 139.7745, "note": "昭和通り等の幹線道路"}, {"name": "銀座・有楽町", "lat": 35.6739, "lon": 139.7632, "note": "規制・混雑エリアを確認"}, {"name": "月島・勝どき", "lat": 35.662, "lon": 139.7833, "note": "橋を渡る移動ロスに注意"}, {"name": "豊洲", "lat": 35.6543, "lon": 139.7969, "note": "幹線道路と橋を意識"}, {"name": "門前仲町", "lat": 35.6726, "lon": 139.7959, "note": "永代通り等"}, {"name": "錦糸町", "lat": 35.6967, "lon": 139.8142, "note": "駅前・四ツ目通り"}, {"name": "上野", "lat": 35.7138, "lon": 139.7773, "note": "駅前混雑に注意"}, {"name": "池袋", "lat": 35.7295, "lon": 139.7109, "note": "繁華街の停車位置に注意"}, {"name": "中野", "lat": 35.7058, "lon": 139.6657, "note": "駅周辺は進入規制に注意"}, {"name": "荻窪", "lat": 35.7046, "lon": 139.6201, "note": "青梅街道等"}, {"name": "三軒茶屋", "lat": 35.6436, "lon": 139.67, "note": "世田谷通り・246号"}, {"name": "下北沢", "lat": 35.6619, "lon": 139.6685, "note": "狭い街路が多い"}, {"name": "自由が丘", "lat": 35.6074, "lon": 139.6688, "note": "駅周辺は細街路に注意"}, {"name": "蒲田", "lat": 35.5625, "lon": 139.716, "note": "駅前の迎車位置に注意"}, {"name": "羽田・天空橋", "lat": 35.5488, "lon": 139.7544, "note": "空港周辺は一般道路での待機規制に注意"}, {"name": "大井町", "lat": 35.6068, "lon": 139.7348, "note": "駅前・幹線道路"}, {"name": "千歳烏山", "lat": 35.6686, "lon": 139.601, "note": "甲州街道など"}, {"name": "調布", "lat": 35.6518, "lon": 139.5449, "note": "都心への長距離空車移動に注意"}, {"name": "吉祥寺", "lat": 35.7031, "lon": 139.5798, "note": "駅周辺の乗降場所に注意"}, {"name": "三鷹", "lat": 35.7027, "lon": 139.5607, "note": "駅前・幹線道路"}];
 
-// v2.2追加：都内広域の検証用代表地点。交差点単位の実測座標ではありません。
+// v2.3追加：都内広域の検証用代表地点。交差点単位の実測座標ではありません。
 const EXTRA_PLACES=[{"name":"亀戸","lat":35.6973,"lon":139.8262,"note":"京葉道路・明治通り／駅周辺の乗降位置に注意"},{"name":"押上","lat":35.7107,"lon":139.8134,"note":"四ツ目通り・浅草通りを参考"},{"name":"両国","lat":35.6957,"lon":139.7932,"note":"京葉道路・清澄通りを参考"},{"name":"住吉","lat":35.6893,"lon":139.8156,"note":"四ツ目通り・新大橋通り"},{"name":"菊川","lat":35.6887,"lon":139.8062,"note":"新大橋通り・三ツ目通り"},{"name":"森下","lat":35.688,"lon":139.7973,"note":"清澄通り・新大橋通り"},{"name":"清澄白河","lat":35.6823,"lon":139.7996,"note":"清澄通り・清洲橋通り"},{"name":"浅草","lat":35.7118,"lon":139.7967,"note":"浅草通り・混雑規制に注意"},{"name":"蔵前","lat":35.7034,"lon":139.7907,"note":"江戸通りなど"},{"name":"浅草橋","lat":35.6976,"lon":139.7844,"note":"江戸通り・蔵前橋通り"},{"name":"秋葉原","lat":35.6984,"lon":139.7731,"note":"昭和通り・駅前の乗降規制"},{"name":"御徒町","lat":35.7074,"lon":139.7746,"note":"昭和通り・中央通り"},{"name":"御茶ノ水","lat":35.6997,"lon":139.7657,"note":"外堀通り・靖国通り"},{"name":"本郷三丁目","lat":35.7067,"lon":139.7599,"note":"本郷通り・春日通り"},{"name":"春日・後楽園","lat":35.7084,"lon":139.7524,"note":"春日通り・白山通り"},{"name":"飯田橋","lat":35.7021,"lon":139.7455,"note":"外堀通り・目白通り"},{"name":"九段下","lat":35.6957,"lon":139.7512,"note":"靖国通り・内堀通り"},{"name":"神保町","lat":35.6959,"lon":139.7576,"note":"靖国通り・白山通り"},{"name":"小川町","lat":35.6954,"lon":139.7674,"note":"靖国通り・本郷通り"},{"name":"茅場町","lat":35.6797,"lon":139.779,"note":"永代通り・新大橋通り"},{"name":"八丁堀","lat":35.6745,"lon":139.7768,"note":"鍛冶橋通り・新大橋通り"},{"name":"人形町","lat":35.685,"lon":139.7823,"note":"人形町通り・清洲橋通り"},{"name":"水天宮前","lat":35.6837,"lon":139.7851,"note":"新大橋通り・迎車位置に注意"},{"name":"木場","lat":35.6695,"lon":139.8077,"note":"永代通り"},{"name":"東陽町","lat":35.6696,"lon":139.8176,"note":"永代通り・四ツ目通り"},{"name":"南砂町","lat":35.6687,"lon":139.8309,"note":"葛西橋通り・永代通り"},{"name":"西大島","lat":35.6894,"lon":139.8261,"note":"新大橋通り・明治通り"},{"name":"大島","lat":35.6899,"lon":139.8359,"note":"新大橋通り"},{"name":"東大島","lat":35.6901,"lon":139.8452,"note":"大島小松川公園付近・橋梁を確認"},{"name":"平井","lat":35.7063,"lon":139.842,"note":"蔵前橋通り"},{"name":"新小岩","lat":35.7169,"lon":139.8575,"note":"蔵前橋通り・平和橋通り"},{"name":"小岩","lat":35.7332,"lon":139.8815,"note":"駅前混雑に注意"},{"name":"葛西","lat":35.663,"lon":139.872,"note":"環七通り・葛西橋通り"},{"name":"西葛西","lat":35.6645,"lon":139.8596,"note":"葛西橋通り・環七通り"},{"name":"船堀","lat":35.6838,"lon":139.864,"note":"船堀街道・新大橋通り"},{"name":"一之江","lat":35.686,"lon":139.8831,"note":"環七通り・今井街道"},{"name":"瑞江","lat":35.6933,"lon":139.8976,"note":"篠崎街道・京葉道路"},{"name":"篠崎","lat":35.7062,"lon":139.9035,"note":"京葉道路・篠崎街道"},{"name":"赤羽","lat":35.7782,"lon":139.7209,"note":"北本通り・駅前迎車位置"},{"name":"王子","lat":35.7531,"lon":139.7381,"note":"明治通り・北本通り"},{"name":"田端","lat":35.7382,"lon":139.7614,"note":"明治通り・田端新町"},{"name":"日暮里","lat":35.7278,"lon":139.771,"note":"尾久橋通り・駅周辺"},{"name":"西日暮里","lat":35.7326,"lon":139.7668,"note":"道灌山通り・尾久橋通り"},{"name":"町屋","lat":35.742,"lon":139.781,"note":"尾竹橋通り・都電沿線"},{"name":"北千住","lat":35.7494,"lon":139.8048,"note":"日光街道・駅前の進入規制"},{"name":"綾瀬","lat":35.7624,"lon":139.8252,"note":"綾瀬駅周辺・環七へ"},{"name":"亀有","lat":35.7668,"lon":139.847,"note":"環七通り・水戸街道"},{"name":"金町","lat":35.7696,"lon":139.8705,"note":"水戸街道・金町駅前"},{"name":"西新井","lat":35.7772,"lon":139.7903,"note":"環七通り・尾竹橋通り"},{"name":"竹ノ塚","lat":35.7943,"lon":139.7906,"note":"日光街道・駅前迎車注意"},{"name":"浮間舟渡","lat":35.7912,"lon":139.6912,"note":"環八通り・国道17号"},{"name":"板橋","lat":35.7458,"lon":139.7191,"note":"中山道・駅周辺"},{"name":"大山","lat":35.7487,"lon":139.7022,"note":"川越街道・商店街周辺規制"},{"name":"成増","lat":35.7766,"lon":139.6329,"note":"川越街道・駅前混雑に注意"},{"name":"練馬","lat":35.7379,"lon":139.6545,"note":"目白通り・環八通り"},{"name":"石神井公園","lat":35.7439,"lon":139.606,"note":"目白通り・駅周辺"},{"name":"大泉学園","lat":35.7495,"lon":139.5862,"note":"大泉学園通り・外環周辺"},{"name":"高田馬場","lat":35.7127,"lon":139.7036,"note":"早稲田通り・明治通り"},{"name":"早稲田","lat":35.7052,"lon":139.7222,"note":"早稲田通り・外苑東通り"},{"name":"東中野","lat":35.7061,"lon":139.6859,"note":"山手通り・大久保通り"},{"name":"中野坂上","lat":35.6976,"lon":139.6824,"note":"山手通り・青梅街道"},{"name":"笹塚","lat":35.6733,"lon":139.6677,"note":"甲州街道"},{"name":"代々木","lat":35.6831,"lon":139.702,"note":"明治通り・甲州街道"},{"name":"代々木上原","lat":35.6691,"lon":139.6802,"note":"井の頭通り"},{"name":"原宿","lat":35.6702,"lon":139.7026,"note":"明治通り・混雑規制に注意"},{"name":"池尻大橋","lat":35.6506,"lon":139.6841,"note":"国道246号・山手通り"},{"name":"駒沢大学","lat":35.6333,"lon":139.661,"note":"国道246号・駒沢通り"},{"name":"二子玉川","lat":35.611,"lon":139.626,"note":"玉川通り・多摩堤通り"},{"name":"成城学園前","lat":35.6409,"lon":139.5989,"note":"世田谷通り・駅前進入規制"},{"name":"用賀","lat":35.6268,"lon":139.6331,"note":"国道246号・環八通り"},{"name":"桜新町","lat":35.6318,"lon":139.6459,"note":"国道246号・駅前"},{"name":"学芸大学","lat":35.6288,"lon":139.6859,"note":"駒沢通り・目黒通り"},{"name":"都立大学","lat":35.6177,"lon":139.6762,"note":"目黒通り"},{"name":"武蔵小山","lat":35.6205,"lon":139.7043,"note":"中原街道・駅前商店街"},{"name":"戸越銀座","lat":35.6158,"lon":139.7155,"note":"中原街道・商店街規制"},{"name":"大森","lat":35.5887,"lon":139.7283,"note":"池上通り・駅前"},{"name":"平和島","lat":35.5781,"lon":139.7354,"note":"第一京浜・環七通り"},{"name":"京急蒲田","lat":35.5609,"lon":139.7239,"note":"第一京浜・環八通り"},{"name":"雑色","lat":35.5496,"lon":139.7159,"note":"第一京浜"},{"name":"西馬込","lat":35.5866,"lon":139.7052,"note":"第二京浜・環七通り"},{"name":"田園調布","lat":35.5974,"lon":139.6674,"note":"中原街道・環八通り"},{"name":"白金高輪","lat":35.6432,"lon":139.734,"note":"桜田通り・明治通り"},{"name":"麻布十番","lat":35.6563,"lon":139.7366,"note":"麻布十番周辺・一方通行注意"},{"name":"広尾","lat":35.6523,"lon":139.7221,"note":"外苑西通り・明治通り"},{"name":"高輪ゲートウェイ","lat":35.6356,"lon":139.7407,"note":"第一京浜・駅周辺再開発の規制確認"},{"name":"芝浦ふ頭","lat":35.6424,"lon":139.7597,"note":"海岸通り・橋梁移動注意"},{"name":"有明","lat":35.6345,"lon":139.793,"note":"湾岸道路・イベント時は規制注意"},{"name":"国際展示場","lat":35.6342,"lon":139.7911,"note":"イベント施設周辺・規制注意"},{"name":"東雲","lat":35.6409,"lon":139.8047,"note":"晴海通り・湾岸道路"},{"name":"辰巳","lat":35.6458,"lon":139.8101,"note":"湾岸道路・橋梁移動に注意"},{"name":"新木場","lat":35.6457,"lon":139.8269,"note":"湾岸道路・新木場駅付近"},{"name":"八潮","lat":35.6037,"lon":139.7566,"note":"湾岸道路・八潮団地周辺"}];
 PLACES.push(...EXTRA_PLACES);
 const $=id=>document.getElementById(id);
@@ -60,7 +144,7 @@ let weatherBundle=null,weatherLoadedAt=null,rainSource="none";
 
 const earthKm=(a,b,c,d)=>{const R=6371,t=Math.PI/180,dl=(c-a)*t,do_=(d-b)*t,q=Math.sin(dl/2)**2+Math.cos(a*t)*Math.cos(c*t)*Math.sin(do_/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(q)))};
 const jst=()=>new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Tokyo'}));
-const pName=h=>h<13?'午前':h<18?'午後':h<22?'夜':'深夜';
+const pName=h=>h>=5&&h<13?'午前':h>=13&&h<18?'午後':h>=18&&h<22?'夜':'深夜';
 function nearest(lat,lon){return PLACES.map(p=>({...p,km:earthKm(lat,lon,p.lat,p.lon)})).sort((a,b)=>a.km-b.km)}
 function setStatus(msg){$('gpsInfo').textContent=msg}
 function readRainInputs(){
@@ -157,17 +241,17 @@ $('headline').textContent=choice;$('guidance').textContent=text;
 $('caution').textContent=(mode==='manual'?'検証地点モード（実際のGPSではありません）。':'GPS位置による判断（地図マッチングなし）。')+' 推奨方針は仮のルールです。';
 const radius=Number($('searchRadius').value);
 const picks=list.filter(p=>p.km>0.5&&p.km<=radius).slice(0,3).map(p=>({tag:'登録地点との近さ順（需要順位ではありません）',p}));
-$('candidates').replaceChildren();picks.forEach((item,i)=>{const p=item.p,el=document.createElement('div');el.className='candidate';const title=document.createElement('div');title.className='ctop';const nam=document.createElement('span');nam.className='name';nam.textContent=(i+1)+'. '+p.name;const km=document.createElement('span');km.className='distance';km.textContent=p.km.toFixed(1)+' km';title.append(nam,km);const tag=document.createElement('div');tag.className='tiny muted';tag.textContent=item.tag+' ／ 直線距離（走行距離ではありません）';const reason=document.createElement('div');reason.className='reason';reason.textContent=p.note+'。'+(p.km>5?'長距離の空車移動となる可能性があるため慎重に。':'GPSから近いエリアとして抽出。実際のGO需要は未確認。');el.append(title,tag,reason);$('candidates').append(el)});if(!picks.length){const p=document.createElement('p');p.className='muted';p.textContent=radius+'km以内の候補がありません。GPS座標と検索半径を確認してください。範囲外の遠距離移動は推奨しません。';$('candidates').append(p)}
+$('candidates').replaceChildren();picks.forEach((item,i)=>{const p=item.p,el=document.createElement('div');el.className='candidate';const title=document.createElement('div');title.className='ctop';const nam=document.createElement('span');nam.className='name';nam.textContent=(i+1)+'. '+p.name;const km=document.createElement('span');km.className='distance';km.textContent=p.km.toFixed(1)+' km';title.append(nam,km);const tag=document.createElement('div');tag.className='tiny muted';tag.textContent=item.tag+' ／ 直線距離（走行距離ではありません）';const reason=document.createElement('div');reason.className='reason';reason.textContent=p.note+'。'+(p.km>5?'長距離の空車移動となる可能性があるため慎重に。':'GPSから近いエリアとして抽出。実際のGO需要は未確認。');el.append(title,tag,reason);if(evidenceSummary){el.append(evidenceForArea(p.name));}$('candidates').append(el)});if(!picks.length){const p=document.createElement('p');p.className='muted';p.textContent=radius+'km以内の候補がありません。GPS座標と検索半径を確認してください。範囲外の遠距離移動は推奨しません。';$('candidates').append(p)}
 renderAutoWeather();$('debug').textContent='位置: '+position.lat.toFixed(5)+', '+position.lon.toFixed(5)+' ／ '+(lastFix?lastFix.toLocaleTimeString('ja-JP'):'検証地点')+' ／ モード: '+mode;
 }
-function onFix(pos){if(mode==='manual')return;const {latitude,longitude,accuracy}=pos.coords;if(!Number.isFinite(latitude)||!Number.isFinite(longitude))return;position={lat:latitude,lon:longitude};mode='gps';lastFix=new Date(pos.timestamp);$('gpsBadge').textContent='GPS 取得';setStatus('GPS位置取得済み（精度目安 '+Math.round(accuracy)+'m）／ '+lastFix.toLocaleTimeString('ja-JP')+'更新');render()}
+function onFix(pos){if(mode==='manual')return;const {latitude,longitude,accuracy}=pos.coords;if(!Number.isFinite(latitude)||!Number.isFinite(longitude))return;position={lat:latitude,lon:longitude};mode='gps';lastFix=new Date(pos.timestamp);$('gpsBadge').textContent='GPS 取得';setStatus('GPS位置取得済み（精度目安 '+Math.round(accuracy)+'m）／ '+lastFix.toLocaleTimeString('ja-JP')+'更新');render();captureObservation()}
 function onGeoError(err){$('gpsBadge').textContent='GPS 未取得';setStatus('位置情報を取得できません（'+(err&&err.message||'不明なエラー')+'）。Safariの位置情報許可とHTTPSを確認してください。');if(mode!=='manual')position=null;render()}
 function startGps(){if(!navigator.geolocation){onGeoError({message:'このブラウザはGPS非対応'});return}mode='gps';$('testplace').value='';if(gpsWatch!==null)navigator.geolocation.clearWatch(gpsWatch);gpsWatch=navigator.geolocation.watchPosition(onFix,onGeoError,{enableHighAccuracy:true,timeout:15000,maximumAge:10000});setStatus('GPS位置を取得しています…')}
 $('locate').addEventListener('click',startGps);$('refresh').addEventListener('click',render);$('weather').addEventListener('change',render);$('elapsed').addEventListener('change',render);
 $('testplace').addEventListener('change',()=>{const p=PLACES.find(p=>p.name===$('testplace').value);if(!p)return;if(gpsWatch!==null){navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null}mode='manual';lastFix=null;position={lat:p.lat,lon:p.lon};$('gpsBadge').textContent='検証地点';setStatus('検証地点を使用中。実際のGPS位置ではありません。');render()});
 $('clear').addEventListener('click',()=>{position=null;mode='none';$('testplace').value='';$('gpsBadge').textContent='GPS 未取得';setStatus('検証地点を解除しました。GPSを取得してください。');render()});
 
-// v2.2: compare empty-mile exposure and regional forecast without inferring GO demand.
+// v2.3: compare empty-mile exposure and regional forecast without inferring GO demand.
 function activeWeather(){
  if(!weatherBundle||!Array.isArray(weatherBundle.stations))return null;
  const age=Date.now()-Date.parse(weatherBundle.generated_at);
@@ -224,5 +308,435 @@ render=function(){renderBase();renderComparison();updateQuickForecast()};
 
 $('stop').addEventListener('click',()=>{if(gpsWatch!==null){navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null}setStatus('GPS追従を停止しました。最終地点が表示されている場合は更新時刻に注意してください。');$('gpsBadge').textContent='GPS 停止'});
 for(const p of PLACES){const opt=document.createElement('option');opt.value=p.name;opt.textContent=p.name;$('testplace').append(opt)}
+let evidenceSummary=null;
 render();refreshAutoWeather();setInterval(()=>{if(mode==='gps'&&lastFix&&Date.now()-lastFix.getTime()>120000){$('gpsBadge').textContent='GPS 古い';setStatus('GPS更新が2分以上ありません。現在地が古い可能性があります。')}render()},60000);
-</script></body></html>
+
+// v2.3: opt-in GPS observation. Never infer taxi occupancy/GO trips from GPS alone.
+const LOG_KEY='tokyo_taxi_sales_v23_observation_log';
+const LOG_PERIOD_MS=120000;
+const LOG_MAX_POINTS=3000;
+let logEnabled=false,logPoints=[],lastLogMs=0;
+function loadObservationLog(){
+ try{const parsed=JSON.parse(localStorage.getItem(LOG_KEY)||'[]');logPoints=Array.isArray(parsed)?parsed.filter(p=>p&&typeof p.t==='string'&&Number.isFinite(p.lat)&&Number.isFinite(p.lon)).slice(-LOG_MAX_POINTS):[];}
+ catch(e){logPoints=[]; $('logStatus').textContent='保存済みログを読み込めませんでした。元データは上書きしていません。';}
+ lastLogMs=logPoints.length?Date.parse(logPoints[logPoints.length-1].t)||0:0;updateLogUi();
+}
+function updateLogUi(msg){
+ $('logBadge').textContent=logEnabled?'記録中':'記録停止中';
+ $('logCount').textContent=logPoints.length+'点';
+ $('logLast').textContent=logPoints.length?new Date(logPoints[logPoints.length-1].t).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',hour12:false}):'—';
+ $('logStart').disabled=logEnabled; $('logStop').disabled=!logEnabled;
+ if(msg)$('logStatus').textContent=msg;
+}
+function persistObservationLog(next){
+ try{localStorage.setItem(LOG_KEY,JSON.stringify(next));return true;}
+ catch(err){logEnabled=false;updateLogUi('端末への保存に失敗したため記録停止。容量・プライベートブラウズ設定を確認し、既存ログをバックアップしてください。');return false;}
+}
+function captureObservation(){
+ if(!logEnabled||document.hidden||mode!=='gps'||!position||!lastFix)return;
+ const now=Date.now(),fixAge=now-lastFix.getTime();
+ if(fixAge<0||fixAge>90000){updateLogUi('GPS更新が古いため保存を見送りました。GPS取得状態を確認してください。');return}
+ if(now-lastLogMs<LOG_PERIOD_MS)return;
+ const record={t:new Date(now).toISOString(),lat:Number(position.lat.toFixed(6)),lon:Number(position.lon.toFixed(6)),gpsFixAt:lastFix.toISOString(),near:nearest(position.lat,position.lon)[0].name,kind:'gps_observation'};
+ const next=[...logPoints,record].slice(-LOG_MAX_POINTS);
+ if(!persistObservationLog(next))return;
+ logPoints=next;lastLogMs=now;updateLogUi('最新観測点を保存しました。GO受注・空車判定は含まれません。');
+}
+$('logStart').addEventListener('click',()=>{
+ if(mode!=='gps'||!lastFix||Date.now()-lastFix.getTime()>90000){updateLogUi('先に「現在地を取得」で新しいGPS位置を取得してください。検証地点は記録しません。');return}
+ if(document.hidden){updateLogUi('ブラウザを表示してから開始してください。');return}
+ logEnabled=true;lastLogMs=0;updateLogUi('記録を開始しました。画面を離れると自動停止します。');captureObservation();
+});
+$('logStop').addEventListener('click',()=>{logEnabled=false;updateLogUi('記録を停止しました。乗務後にJSONをバックアップしてください。')});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&logEnabled){logEnabled=false;updateLogUi('Safariが非表示になったため記録を停止しました。再開には操作が必要です。')}});
+$('stop').addEventListener('click',()=>{if(logEnabled){logEnabled=false;updateLogUi('GPS追従が停止したため、観測ログも停止しました。')}});
+$('testplace').addEventListener('change',()=>{if(logEnabled){logEnabled=false;updateLogUi('検証地点に切り替えたため記録停止。検証座標は保存しません。')}});
+$('clear').addEventListener('click',()=>{if(logEnabled){logEnabled=false;updateLogUi('位置が解除されたため記録停止。')}});
+function downloadLog(text,filename,mime){
+ const blob=new Blob([text],{type:mime}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=filename;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500);
+}
+function logFileName(ext){return 'tokyo-taxi-gps-observations-'+new Date().toISOString().slice(0,10)+'.'+ext;}
+$('logExportJson').addEventListener('click',()=>{
+ if(!logPoints.length){updateLogUi('書き出す観測点がありません。');return}
+ downloadLog(JSON.stringify({schema:'taxi-gps-observation-v1',exported_at:new Date().toISOString(),notice:'GPS observation only; GO orders, occupancy and actual driven distance are not inferred',points:logPoints},null,2),logFileName('json'),'application/json;charset=utf-8');
+ updateLogUi('JSONを書き出しました。iPhone/iPadのファイルに保存されているか確認してください。');
+});
+$('logExportCsv').addEventListener('click',()=>{
+ if(!logPoints.length){updateLogUi('書き出す観測点がありません。');return}
+ const lines=['timestamp_utc,latitude,longitude,gps_fix_at_utc,nearby_area,record_type'];
+ for(const p of logPoints){const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';lines.push([p.t,p.lat,p.lon,p.gpsFixAt,quote(p.near),p.kind].join(','))}
+ downloadLog('\ufeff'+lines.join('\r\n'),logFileName('csv'),'text/csv;charset=utf-8');
+ updateLogUi('CSVを書き出しました。');
+});
+$('logDelete').addEventListener('click',()=>{
+ if(!logPoints.length){updateLogUi('削除対象の観測点はありません。');return}
+ if(!confirm('端末内のGPS観測ログ'+logPoints.length+'点を削除します。バックアップしていないデータは戻せません。削除しますか？'))return;
+ try{localStorage.removeItem(LOG_KEY);logPoints=[];lastLogMs=0;logEnabled=false;updateLogUi('端末内のGPS観測ログを削除しました。');}
+ catch(err){updateLogUi('削除できませんでした。Safariのストレージ設定を確認してください。')}
+});
+loadObservationLog();
+setInterval(captureObservation,30000);
+
+
+// v3.0 Offline post-shift import. Data remains in memory until explicitly downloaded.
+let shiftAnalysis=null;
+const csvEscape=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+function parseCsvStrict(text){
+ const rows=[];let row=[],cell='',quoted=false;
+ text=String(text).replace(/^\uFEFF/,'');
+ for(let i=0;i<text.length;i++){
+  const ch=text[i];
+  if(quoted){if(ch==='"'&&text[i+1]==='"'){cell+='"';i++}else if(ch==='"'){quoted=false}else{cell+=ch}}
+  else if(ch==='"'){quoted=true}
+  else if(ch===','){row.push(cell);cell=''}
+  else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(cell);if(row.some(v=>v.trim()))rows.push(row);row=[];cell=''}
+  else{cell+=ch}
+ }
+ if(quoted)throw Error('CSVの引用符が閉じていません');
+ row.push(cell);if(row.some(v=>v.trim()))rows.push(row);
+ return rows;
+}
+function parseRides(text){
+ const rows=parseCsvStrict(text);if(rows.length<2)throw Error('CSVにヘッダーと乗車行が必要です');
+ const hdr=rows.shift().map(v=>v.trim());
+ const getIx=n=>hdr.indexOf(n),ti=getIx('pickup_datetime'),la=getIx('pickup_lat'),lo=getIx('pickup_lon');
+ if(ti<0||la<0||lo<0)throw Error('CSVに pickup_datetime, pickup_lat, pickup_lon の列が必要です');
+ const rides=[];let invalid=0;
+ for(const row of rows){const raw=(row[ti]||'').trim(),t=Date.parse(raw);
+  if(!raw||!Number.isFinite(t)||!/(Z|[+-]\d\d:\d\d)$/i.test(raw)){invalid++;continue}
+  const lat=Number(row[la]),lon=Number(row[lo]);
+  const hasCoords=(row[la]||'').trim()!==''&&(row[lo]||'').trim()!==''&&Number.isFinite(lat)&&Number.isFinite(lon)&&lat>=-90&&lat<=90&&lon>=-180&&lon<=180;
+  rides.push({row:rides.length+2,time:new Date(t).toISOString(),lat:hasCoords?lat:null,lon:hasCoords?lon:null,area:hasCoords?nearest(lat,lon)[0].name:null});
+ }
+ return {rides,invalid,total:rows.length};
+}
+// v3.0: direct times only; no automatic interpretation of scanned PDF or passenger state.
+function parseManualRides(){
+ const day=$('shiftDate').value, raw=$('shiftTimes').value.trim();
+ if(!raw)return null;
+ if(!/^\d{4}-\d\d-\d\d$/.test(day)||!Number.isFinite(Date.parse(day+'T00:00:00+09:00')))
+  throw Error('乗務開始日を選択してください。');
+ const parts=raw.split(/[\s,、;；]+/).filter(Boolean);
+ if(parts.length>250)throw Error('時刻は250件以内にしてください。');
+ const rides=[];let invalid=0,firstInvalid=[];
+ for(const [idx,v] of parts.entries()){
+  const match=/^(\d{1,2}):(\d{2})$/.exec(v);
+  if(!match||Number(match[1])>23||Number(match[2])>59){invalid++;firstInvalid.push(v);continue}
+  const h=Number(match[1]),minute=Number(match[2]);
+  // Local taxi shift is typically day -> after midnight. 00-04 are explicitly next day.
+  const nextDay=h<5?1:0;
+  const ms=Date.parse(day+'T00:00:00+09:00')+(nextDay*24*60+h*60+minute)*60000;
+  rides.push({row:idx+1,time:new Date(ms).toISOString(),lat:null,lon:null,area:null});
+ }
+ if(!rides.length)throw Error('有効な乗車時刻がありません。例：08:15 10:32 00:25');
+ if(invalid)throw Error('入力形式が不正な時刻があります：'+firstInvalid.slice(0,5).join('、')+'。すべて HH:MM で入力してください。');
+ return {rides,invalid:0,total:rides.length,source:'manual_times',service_date:day};
+}
+function csvOfManual(rides){
+ return 'pickup_datetime,pickup_lat,pickup_lon\r\n'+rides.map(r=>{
+  const d=new Date(r.time);const local=new Date(d.getTime()+9*3600000).toISOString().slice(0,19);
+  return local+'+09:00,,\r\n';
+ }).join('');
+}
+$('shiftTemplate').addEventListener('click',()=>{
+ try{const d=parseManualRides();if(!d)throw Error('時刻を入力してください。');
+  downloadLog(csvOfManual(d.rides),'tokyo-taxi-rides-'+d.service_date+'.csv','text/csv;charset=utf-8');
+  $('manualStatus').textContent=d.rides.length+'件の時刻をCSVに保存しました。住所や座標は未入力です。';
+ }catch(err){$('manualStatus').textContent='確認してください：'+err.message}
+});
+const dateNowInTokyo=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+$('shiftDate').value=dateNowInTokyo;
+function parseTrack(text){
+ if(text.length>25*1024*1024)throw Error('GPXは25MB以下にしてください');
+ const xml=new DOMParser().parseFromString(text,'application/xml');
+ if(xml.querySelector('parsererror'))throw Error('GPXのXML形式を読み取れません');
+ const list=[...xml.getElementsByTagNameNS('*','trkpt')];
+ if(!list.length)throw Error('GPXにtrkptがありません（ルート点のみのGPXには未対応）');
+ if(list.length>180000)throw Error('GPXの点数が多すぎます。180,000点以内のファイルに分割してください');
+ const pts=[];let invalid=0;
+ for(const node of list){const lat=Number(node.getAttribute('lat')),lon=Number(node.getAttribute('lon'));
+  const tNode=[...node.children].find(el=>el.localName==='time');const t=tNode?Date.parse(tNode.textContent):NaN;
+  if(!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180||!Number.isFinite(t)){invalid++;continue}
+  pts.push({lat,lon,t});
+ }
+ pts.sort((a,b)=>a.t-b.t);
+ if(pts.length<2)throw Error('有効な時刻付きGPX点が2点未満です');
+ let dist=0,gaps=0,rejected=0,secs=0;
+ const hours={};
+ for(let i=0;i<pts.length;i++){
+  const p=pts[i],hour=String(new Date(p.t+9*3600000).getUTCHours()).padStart(2,'0');
+  hours[hour]=(hours[hour]||0)+1;
+  if(i===0)continue;
+  const prev=pts[i-1],delta=(p.t-prev.t)/1000;
+  if(delta<=0)continue;
+  if(delta>600){gaps++;continue}
+  const km=earthKm(prev.lat,prev.lon,p.lat,p.lon);
+  if((km/delta)*3600>150){rejected++;continue}
+  dist+=km;secs+=delta;
+ }
+ return {points:pts.length,invalid,distance_km:Math.round(dist*10)/10,linked_hours:Math.round(secs/360)/10,gaps,rejected,first:new Date(pts[0].t).toISOString(),last:new Date(pts[pts.length-1].t).toISOString(),hourly_points:hours,_pts:pts};
+}
+function hourJST(iso){return Number(new Intl.DateTimeFormat('en-GB',{hour:'2-digit',hourCycle:'h23',timeZone:'Asia/Tokyo'}).format(new Date(iso)))}
+function countByTime(rides){
+ const groups=[{name:'午前（〜13時）',test:h=>h>=5&&h<13},{name:'午後（13〜18時）',test:h=>h>=13&&h<18},{name:'夜（18〜22時）',test:h=>h>=18&&h<22},{name:'深夜（22〜翌5時）',test:h=>h>=22||h<5}];
+ return groups.map(g=>({label:g.name,rides:rides.filter(r=>g.test(hourJST(r.time))).length}));
+}
+// v3.0: Conservative timestamp pairing. Never treat a GPS point as verified pickup or GO acceptance.
+// Matching window +/- 180s. Interpolate only between GPS points with a gap <= 180s,
+// and discard movement implying >150 km/h. If CSV coordinates exist, compare them.
+function matchRidesToTrack(rideData,track){
+ if(!rideData||!track||!track._pts)return null;
+ const pts=track._pts;
+ const matches=[];
+ for(const r of rideData.rides){
+  const time=Date.parse(r.time);
+  let low=0,high=pts.length;
+  while(low<high){const mid=(low+high)>>1;if(pts[mid].t<time)low=mid+1;else high=mid}
+  const after=low<pts.length?pts[low]:null,before=low>0?pts[low-1]:null;
+  const da=after?Math.abs(after.t-time)/1000:Infinity,db=before?Math.abs(before.t-time)/1000:Infinity;
+  const near=(db<=da?before:after),nearestSec=Math.min(da,db);
+  let status='no_fix',lat=null,lon=null,method=null,deltaSec=null,discrepancyKm=null;
+  if(nearestSec<=180){
+   const span=before&&after?(after.t-before.t)/1000:Infinity;
+   const spanKm=before&&after?earthKm(before.lat,before.lon,after.lat,after.lon):Infinity;
+   const speed=span>0?spanKm/span*3600:Infinity;
+   const interpolable=before&&after&&span>0&&span<=180&&speed<=150;
+   if(interpolable){const f=(time-before.t)/(after.t-before.t);lat=before.lat+(after.lat-before.lat)*f;lon=before.lon+(after.lon-before.lon)*f;method='interpolated';deltaSec=Math.round(nearestSec)}
+   else if(near){lat=near.lat;lon=near.lon;method='nearest_point';deltaSec=Math.round(nearestSec)}
+   // Nearest GPS point with no close neighbor is a weak estimate, not a confirmed location.
+   if(lat!==null){status='time_matched';if(r.lat!==null){discrepancyKm=Math.round(earthKm(lat,lon,r.lat,r.lon)*1000)/1000;status=discrepancyKm<=0.5?'position_consistent':'position_conflict'}}
+  }
+  matches.push({csv_row:r.row,pickup_time:r.time,reported_coordinates:r.lat!==null,
+   match_status:status,gps_method:method,gps_time_delta_seconds:deltaSec,
+   gps_lat:lat,gps_lon:lon,reported_to_gps_km:discrepancyKm,
+   estimated_nearby_area:lat!==null?nearest(lat,lon)[0].name:null});
+ }
+ const counts={position_consistent:0,position_conflict:0,time_matched:0,no_fix:0};for(const m of matches)counts[m.match_status]++;
+ return {settings:{max_gps_gap_seconds:180,nearest_fix_window_seconds:180,position_tolerance_km:0.5,max_between_fix_speed_kmh:150},counts,matches};
+}
+function renderRideMatches(root,match){
+ if(!match)return;
+ root.append(domText('h3','乗車時刻とGPXの照合（参考）'));
+ const k=match.counts;
+ root.append(domText('p','位置整合 '+k.position_consistent+'件 ／ 位置不一致 '+k.position_conflict+'件 ／ 時刻のみ近接 '+k.time_matched+'件 ／ GPS点なし '+k.no_fix+'件','tiny muted'));
+ root.append(domText('p','時刻差3分以内のGPSを参照。乗車記録に座標がある場合のみ位置差500m以内を「位置整合」とします。座標がない行は乗車地点を確認できません。','tiny muted'));
+ const sc=domText('div','','analysis-scroll'),table=domText('table','','analysis-table'),hdr=domText('tr','');
+ for(const h of ['記録番号','乗車時刻(JST)','照合結果','時刻差','記録-GPS距離','GPX近隣地点（推定）'])hdr.append(domText('th',h));table.append(hdr);
+ for(const m of match.matches.slice(0,200)){
+  const tr=domText('tr','');let label={position_consistent:'位置整合',position_conflict:'位置不一致',time_matched:'時刻近接・位置未検証',no_fix:'GPS点なし'}[m.match_status];
+  const vals=[m.csv_row,new Date(m.pickup_time).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}),label,
+   m.gps_time_delta_seconds===null?'—':m.gps_time_delta_seconds+'秒',m.reported_to_gps_km===null?'—':(m.reported_to_gps_km*1000).toFixed(0)+'m',m.estimated_nearby_area||'—'];
+  for(const val of vals)tr.append(domText('td',String(val)));table.append(tr);
+ }
+ sc.append(table);root.append(sc);
+ if(match.matches.length>200)root.append(domText('p','表には先頭200行のみ表示。全件は分析JSONに含まれます。','tiny muted'));
+ root.append(domText('p','重要：時刻や位置が一致してもGO受注・実車開始を証明しません。端末時刻ズレ、GPX途切れ、トンネル等に注意してください。','warning'));
+}
+function domText(tag,value,cls){const n=document.createElement(tag);if(cls)n.className=cls;n.textContent=value;return n}
+function renderShiftReport(a){
+ const root=$('shiftReport');root.replaceChildren();const grid=domText('div','','analysis-grid');
+ const nums=[['GPX観測点',a.track?a.track.points.toLocaleString()+' 点':'なし'],['GPS点間距離',a.track?a.track.distance_km.toFixed(1)+' km':'算出なし'],['乗車記録',a.rideData?a.rideData.rides.length+' 件':'未入力'],['GPX欠測区間',a.track?a.track.gaps+' 区間':'不明']];
+ for(const [k,v] of nums){const d=domText('div','','analysis-kpi');d.append(domText('small',k),domText('strong',v));grid.append(d)}root.append(grid);
+ if(a.track){root.append(domText('p','記録期間：'+new Date(a.track.first).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'})+' ～ '+new Date(a.track.last).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}),'tiny muted'));
+ root.append(domText('p','区間計算から除外：10分超のギャップ '+a.track.gaps+'、推定150km/h超 '+a.track.rejected+'。距離は参考値です。','tiny muted'))}
+ if(a.rideData){const rd=a.rideData;
+  root.append(domText('p','乗車時刻：有効 '+rd.rides.length+'件／日時不正 '+rd.invalid+'件／乗車座標あり '+rd.rides.filter(r=>r.area).length+'件','tiny muted'));
+  const t=domText('table','','analysis-table');const head=domText('tr','');head.append(domText('th','時間帯'),domText('th','乗車件数'));t.append(head);
+  for(const g of countByTime(rd.rides)){const tr=domText('tr','');tr.append(domText('td',g.label),domText('td',String(g.rides)));t.append(tr)}const sc=domText('div','','analysis-scroll');sc.append(t);root.append(sc);
+  const areaCounts={};for(const r of rd.rides){if(r.area)areaCounts[r.area]=(areaCounts[r.area]||0)+1}
+  const leaders=Object.entries(areaCounts).sort((x,y)=>y[1]-x[1]).slice(0,5);
+  root.append(domText('p','乗車地点の近隣登録エリア（上位・需要順位ではありません）：'+(leaders.map(([k,v])=>k+' '+v+'件').join(' ／ ')||'座標入力なし'),'tiny muted'));
+ }
+ if(a.matches)renderRideMatches(root,a.matches);
+ root.append(domText('p','注：GOの受注地点や実車／空車は自動判定していません。GPX由来の地点は推定です。','tiny muted'));
+}
+$('shiftAnalyze').addEventListener('click',async()=>{
+ const gpx=$('shiftGpx').files[0],csv=$('shiftRides').files[0],hasManual=$('shiftTimes').value.trim().length>0;if(!gpx&&!csv&&!hasManual){$('shiftStatus').textContent='GPX・CSV・乗車時刻のいずれかを指定してください。';return}
+ $('shiftAnalyze').disabled=true;$('shiftStatus').textContent='端末内で解析しています…';
+ try{const track=gpx?parseTrack(await gpx.text()):null,rideData=csv?parseRides(await csv.text()):(hasManual?parseManualRides():null);
+  shiftAnalysis={schema:'taxi-postshift-v27',created_at:new Date().toISOString(),sources:{gpx:gpx?.name||null,rides_csv:csv?.name||null,manual_times:!csv&&hasManual?'direct_input':null},track,rideData,matches:matchRidesToTrack(rideData,track),disclaimer:'GPX estimated track length is not odometer mileage, taxi occupancy, GO pickup events or empty mileage'};
+  renderShiftReport(shiftAnalysis);$('shiftExport').disabled=false;$('shiftStatus').textContent='解析完了。ファイルはアップロードしていません。必要なら分析JSONを保存してください。';
+ }catch(e){shiftAnalysis=null;$('shiftExport').disabled=true;$('shiftReport').replaceChildren();$('shiftStatus').textContent='読み込みエラー：'+e.message}
+ finally{$('shiftAnalyze').disabled=false}
+});
+$('shiftExport').addEventListener('click',()=>{if(!shiftAnalysis)return;downloadLog(JSON.stringify(shiftAnalysis,(k,v)=>k==='_pts'?undefined:v,2),'tokyo-taxi-postshift-analysis-'+new Date().toISOString().slice(0,10)+'.json','application/json;charset=utf-8')});
+$('shiftReset').addEventListener('click',()=>{shiftAnalysis=null;$('shiftReport').replaceChildren();$('shiftGpx').value='';$('shiftRides').value='';$('shiftTimes').value='';$('shiftExport').disabled=true;$('shiftStatus').textContent='画面の分析結果をクリアしました。GPS観測ログは変更していません。'});
+
+
+// v3.0 batch mode: aggregated *previously exported* postshift JSON; no silent persistence.
+let batchOutput=null;
+function batchJstDate(iso){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(iso));}
+function batchValidate(obj,label){
+ if(!obj||typeof obj!=='object'||!/^taxi-postshift-v2[4567]$/.test(obj.schema||''))throw Error(label+'：対応する乗務分析JSONではありません');
+ const rides=obj.rideData?.rides;
+ if(rides!==undefined&&(!Array.isArray(rides)||rides.length>2000))throw Error(label+'：乗車データの形式または件数が不正です');
+ if(obj.matches?.matches!==undefined&&!Array.isArray(obj.matches.matches))throw Error(label+'：照合データの形式が不正です');
+ if((rides?.length||0)===0&&!obj.track)throw Error(label+'：乗車記録もGPX分析もありません');
+ for(const r of rides||[]){if(!r||!Number.isFinite(Date.parse(r.time||''))||!Number.isFinite(new Date(r.time).getTime()))throw Error(label+'：乗車日時が不正です');}
+ if(obj.track){if(!Number.isFinite(obj.track.points)||obj.track.points<0||!Number.isFinite(obj.track.distance_km)||obj.track.distance_km<0)throw Error(label+'：GPX集計の形式が不正です');}
+ return obj;
+}
+function batchFingerprint(obj){
+ // A stable fingerprint based on underlying dates and pickup rows; created_at/file name is intentionally excluded.
+ const rides=(obj.rideData?.rides||[]).map(r=>[r.time,r.lat??'',r.lon??''].join(',')).sort();
+ return JSON.stringify([rides,obj.track?.first||'',obj.track?.last||'',obj.track?.points??null]);
+}
+function batchSummarize(entries){
+ const seen=new Set(),included=[],duplicates=[],excluded=[];
+ for(const e of entries){try{const a=batchValidate(e.data,e.name),fp=batchFingerprint(a);
+   if(seen.has(fp)){duplicates.push(e.name);continue;}seen.add(fp);included.push({...e,data:a});
+  }catch(err){excluded.push(err.message)}}
+ const periods=[{label:'午前（5〜13時）',value:0},{label:'午後（13〜18時）',value:0},{label:'夜（18〜22時）',value:0},{label:'深夜（22〜翌5時）',value:0}];
+ const verifiedAreas=new Map(),estimatedAreas=new Map(),verifiedByBand=new Map(),estimatedByBand=new Map();
+ let totalRides=0,totalFix=0,withoutGpx=0,invalidRides=0,trackCount=0,trackDistance=0,trackGaps=0;
+ const shifts=[];
+ for(const e of included){const a=e.data,rides=a.rideData?.rides||[],matches=a.matches?.matches||[];
+  totalRides+=rides.length;invalidRides+=Number(a.rideData?.invalid||0);
+  if(a.track){trackCount++;trackDistance+=a.track.distance_km;trackGaps+=Number(a.track.gaps||0)}
+  const matchByRow=new Map(matches.map(m=>[String(m.csv_row),m]));let near=0,noFix=0;
+  for(const r of rides){const h=hourJST(r.time),band=h>=5&&h<13?'午前':h>=13&&h<18?'午後':h>=18&&h<22?'夜':'深夜';periods[h>=5&&h<13?0:h>=13&&h<18?1:h>=18&&h<22?2:3].value++;
+   if(Number.isFinite(r.lat)&&Number.isFinite(r.lon)&&r.lat!==null&&r.lon!==null){
+    const area=typeof r.area==='string'&&r.area?r.area:nearest(r.lat,r.lon)[0].name;
+    verifiedAreas.set(area,(verifiedAreas.get(area)||0)+1);verifiedByBand.set(band+"|"+area,(verifiedByBand.get(band+"|"+area)||0)+1);
+   }
+   const m=matchByRow.get(String(r.row));
+   if(m&&m.match_status!=='no_fix'&&Number.isFinite(m.gps_lat)&&Number.isFinite(m.gps_lon)){
+    near++;totalFix++;
+    if(r.lat===null||r.lat===undefined){const area=m.estimated_nearby_area||nearest(m.gps_lat,m.gps_lon)[0].name;
+      estimatedAreas.set(area,(estimatedAreas.get(area)||0)+1);estimatedByBand.set(band+"|"+area,(estimatedByBand.get(band+"|"+area)||0)+1)}
+   }else{noFix++}
+  }
+  if(!a.track)withoutGpx++;
+  const timeRef=rides[0]?.time||a.track?.first||a.created_at;
+  shifts.push({file:e.name,service_date:timeRef?batchJstDate(timeRef):'不明',ride_count:rides.length,match_count:near,unmatched_count:noFix,gpx_distance_km:a.track?.distance_km??null,gpx_gaps:a.track?.gaps??null});
+ }
+ const sorted=m=>[...m].sort((a,b)=>b[1]-a[1]).map(([area,rides])=>({area,rides}));
+ const byBand=m=>[...m].map(([key,rides])=>{const sep=key.indexOf("|");return {band:key.slice(0,sep),area:key.slice(sep+1),rides}}).sort((a,b)=>b.rides-a.rides);
+ return {schema:'taxi-batch-v29',created_at:new Date().toISOString(),file_count:entries.length,shift_count:included.length,duplicates,excluded,total_rides:totalRides,invalid_ride_rows:invalidRides,gpx_shifts:trackCount,gpx_missing_shifts:withoutGpx,gpx_point_to_point_distance_km:Math.round(trackDistance*10)/10,gpx_gaps:trackGaps,gpx_time_near_rows:totalFix,time_bands:periods,reported_pickup_areas:sorted(verifiedAreas),gpx_estimated_areas:sorted(estimatedAreas),reported_pickup_by_band:byBand(verifiedByBand),gpx_estimated_by_band:byBand(estimatedByBand),shifts,notice:'Not GO acceptance, empty time, occupancy, demand probability, odometer mileage or confirmed pickup positions.'};
+}
+function batchReportRender(out){const root=$('batchReport');root.replaceChildren();
+ const stats=[['集計乗務',out.shift_count+'件'],['乗車記録',out.total_rides+'件'],['GPX付乗務',out.gpx_shifts+'件'],['GPS時刻近接',out.gpx_time_near_rows+'件']];
+ const cards=domText('div','','analysis-grid');for(const [label,value] of stats){const c=domText('div','','analysis-kpi');c.append(domText('small',label),domText('strong',value));cards.append(c)}root.append(cards);
+ root.append(domText('p','GPX点間距離合計 '+out.gpx_point_to_point_distance_km.toFixed(1)+'km（参考） ／ GPX欠測 '+out.gpx_gaps+'区間 ／ 日時不正の乗車行 '+out.invalid_ride_rows+'件','tiny muted'));
+ const table=(heading,headers,rows)=>{root.append(domText('h3',heading));const wrap=domText('div','','analysis-scroll'),t=domText('table','','analysis-table'),hr=domText('tr','');headers.forEach(x=>hr.append(domText('th',x)));t.append(hr);for(const values of rows){const tr=domText('tr','');values.forEach(x=>tr.append(domText('td',String(x))));t.append(tr)}wrap.append(t);root.append(wrap)};
+ table('時間帯別・入力乗車件数',['時間帯','件数'],out.time_bands.map(v=>[v.label,v.value]));
+ table('入力座標がある乗車地点（近隣登録エリア）',['エリア','件数'],out.reported_pickup_areas.slice(0,12).map(v=>[v.area,v.rides]));
+ if(!out.reported_pickup_areas.length)root.append(domText('p','乗車位置の入力座標はありません。','tiny muted'));
+ if(out.reported_pickup_by_band?.length)table('入力座標・時間帯別の記録',['時間帯','エリア','件数'],out.reported_pickup_by_band.slice(0,24).map(v=>[v.band,v.area,v.rides]));
+ if(out.gpx_estimated_by_band?.length)table('GPX推定・時間帯別の記録',['時間帯','エリア','件数'],out.gpx_estimated_by_band.slice(0,24).map(v=>[v.band,v.area,v.rides]));
+ table('GPX時刻から推定した近隣地点（未検証）',['エリア','件数'],out.gpx_estimated_areas.slice(0,12).map(v=>[v.area,v.rides]));
+ table('乗務別の入力状況',['日付（参考）','乗車件数','時刻近接','GPX距離参考'],out.shifts.map(s=>[s.service_date,s.ride_count,s.match_count,s.gpx_distance_km===null?'なし':s.gpx_distance_km.toFixed(1)+'km']));
+ if(out.duplicates.length)root.append(domText('p','重複して除外：'+out.duplicates.join('、'),'warning'));
+ if(out.excluded.length)root.append(domText('p','形式不一致・除外：'+out.excluded.join(' ／ '),'warning'));
+ root.append(domText('p','集計件数は入力ファイルの内容に依存します。乗車時刻やGPXの不足があれば統計も不完全です。GO受注までの空車時間や需要順位は算出していません。','tiny muted'));
+}
+$('batchAnalyze').addEventListener('click',async()=>{
+ const btn=$('batchAnalyze'),input=$('batchFiles');btn.disabled=true;$('batchStatus').textContent='ファイルを読み込んでいます…';
+ try{const files=[...input.files];if(files.length>60)throw Error('ファイルは最大60件です');
+ const entries=[];for(const f of files){if(f.size>8*1024*1024)throw Error(f.name+' は8MBを超えています');
+  try{entries.push({name:f.name,data:JSON.parse(await f.text())})}catch(err){entries.push({name:f.name,data:{schema:'invalid'}})}}
+ if($('batchIncludeCurrent').checked&&shiftAnalysis)entries.push({name:'この画面の直近分析',data:shiftAnalysis});
+ if(!entries.length)throw Error('分析JSONファイルを選択するか、直近分析を含めてください');
+ batchOutput=batchSummarize(entries);if(!batchOutput.shift_count)throw Error('集計できる分析JSONがありません（対応形式はv2.4〜v2.7）');
+ batchReportRender(batchOutput);$('batchExport').disabled=false;
+ $('batchStatus').textContent=batchOutput.shift_count+'乗務を集計しました。除外 '+(batchOutput.duplicates.length+batchOutput.excluded.length)+'件。保存する場合は集計JSON保存を押してください。';
+ }catch(err){batchOutput=null;$('batchExport').disabled=true;$('batchReport').replaceChildren();$('batchStatus').textContent='集計エラー：'+err.message}
+ finally{btn.disabled=false}
+});
+$('batchExport').addEventListener('click',()=>{if(!batchOutput)return;downloadLog(JSON.stringify(batchOutput,null,2),'tokyo-taxi-multishift-summary-'+new Date().toISOString().slice(0,10)+'.json','application/json;charset=utf-8')});
+$('batchClear').addEventListener('click',()=>{batchOutput=null;$('batchFiles').value='';$('batchExport').disabled=true;$('batchReport').replaceChildren();$('batchStatus').textContent='集計表示を消去しました。乗務分析やGPSログは変更していません。'});
+
+
+// v3.0: Read existing v2.7 batch summary only; display evidence without ranking or prediction.
+function evidenceSafeRows(rows){
+ if(!Array.isArray(rows)||rows.length>500)return false;
+ return rows.every(r=>r&&typeof r.area==='string'&&r.area.length>0&&r.area.length<=80&&Number.isSafeInteger(r.rides)&&r.rides>=0&&r.rides<=1000000);
+}
+function validateEvidence(v){
+ if(!v||!['taxi-batch-v27','taxi-batch-v29'].includes(v.schema))throw Error('対応する複数乗務まとめ集計JSONではありません');
+ if(!Number.isSafeInteger(v.shift_count)||v.shift_count<1||v.shift_count>10000||!Number.isSafeInteger(v.total_rides)||v.total_rides<0||v.total_rides>2000000)throw Error('乗務数・件数の形式が正しくありません');
+ if(!evidenceSafeRows(v.reported_pickup_areas)||!evidenceSafeRows(v.gpx_estimated_areas))throw Error('地域別件数の形式が正しくありません');
+ const checkBands=rows=>Array.isArray(rows)&&rows.length<=2000&&rows.every(r=>r&&['午前','午後','夜','深夜'].includes(r.band)&&typeof r.area==='string'&&r.area.length>0&&r.area.length<=80&&Number.isSafeInteger(r.rides)&&r.rides>=0&&r.rides<=1000000);
+ const hasBands=v.schema==='taxi-batch-v29';
+ if(hasBands&&(!checkBands(v.reported_pickup_by_band)||!checkBands(v.gpx_estimated_by_band)))throw Error('時間帯別実績の形式が不正です');
+ const toMap=rows=>new Map(rows.map(r=>[r.band+'|'+r.area,r.rides]));
+ return {shiftCount:v.shift_count,total:v.total_rides,created:v.created_at,hasBands,reported:new Map(v.reported_pickup_areas.map(r=>[r.area,r.rides])),estimated:new Map(v.gpx_estimated_areas.map(r=>[r.area,r.rides])),reportedBands:hasBands?toMap(v.reported_pickup_by_band):new Map(),estimatedBands:hasBands?toMap(v.gpx_estimated_by_band):new Map()};
+}
+function evidenceForArea(area){
+ const r=evidenceSummary.reported.get(area),g=evidenceSummary.estimated.get(area);
+ const has=r!==undefined||g!==undefined;
+ const el=document.createElement('div');el.className='tiny';el.style.marginTop='7px';el.style.padding='7px';el.style.borderTop='1px solid #42576c';
+ const band=pName(jst().getHours());
+ if(evidenceSummary.hasBands){
+  const rb=evidenceSummary.reportedBands.get(band+'|'+area)||0,gb=evidenceSummary.estimatedBands.get(band+'|'+area)||0;
+  el.textContent='過去の'+band+'の乗車記録｜入力座標 '+rb+'件 ／ GPX推定 '+gb+'件（全時間：'+(r??0)+'件／'+(g??0)+'件）。'+(rb+gb===0?'この時間帯の記録不足。':'受注率・需要順位ではありません。');
+ }else{el.textContent=has?('過去の終日記録｜入力座標 '+(r??0)+'件 ／ GPX推定 '+(g??0)+'件。時間帯別データなし'):'過去の終日記録｜この地点の記録なし／データ不足';}
+ return el;
+}
+function paintEvidenceStatus(){
+ const target=$('evidenceSummary');target.replaceChildren();
+ if(!evidenceSummary){$('evidenceStatus').textContent='実績未読込。候補は近さ順で表示します。';return;}
+ const bits=[['集計済み乗務',evidenceSummary.shiftCount+'件'],['記録上の乗車',evidenceSummary.total+'件'],['入力座標の登録地域',evidenceSummary.reported.size+'地点'],['GPX推定の登録地域',evidenceSummary.estimated.size+'地点']];
+ for(const [name,value] of bits){const box=domText('div','','analysis-kpi');box.append(domText('small',name),domText('strong',value));target.append(box)}
+ $('evidenceStatus').textContent='実績を読み込みました。'+(evidenceSummary.hasBands?'時間帯別の過去記録を表示します。':'旧形式のため終日の記録のみ表示します。')+' ファイルは画面内のみで利用し、再読込後は保持されません。';
+}
+$('evidenceLoad').addEventListener('click',async()=>{
+ const f=$('evidenceFile').files?.[0];if(!f){$('evidenceStatus').textContent='集計JSONを選択してください';return}
+ try{if(f.size>2*1024*1024)throw Error('ファイルは2MB以下にしてください');const d=validateEvidence(JSON.parse(await f.text()));evidenceSummary=d;paintEvidenceStatus();render()}
+ catch(err){$('evidenceStatus').textContent='読み込みエラー：'+err.message}
+});
+$('evidenceClear').addEventListener('click',()=>{evidenceSummary=null;$('evidenceFile').value='';paintEvidenceStatus();render()});
+
+</script>
+<script>
+(()=>{
+'use strict';
+const KEY='tokyo-taxi-sales-go-events-v3';
+const el=id=>document.getElementById(id);
+const types={open:'GO受付開始',accept:'GO受注',dropoff:'降車・完了',cancel:'受付取消・中断'};
+let entries=[];let hiddenDuringOpen=false;let lastReport='';
+try {let raw=JSON.parse(localStorage.getItem(KEY)||'[]');if(Array.isArray(raw))entries=raw.filter(e=>e&&types[e.kind]&&Number.isFinite(e.at)).slice(-5000);}catch(e){lastReport='ログ読込に失敗しました。旧データは上書きしません。';}
+let storageFailure=Boolean(lastReport);
+function jst(ms){return new Date(ms).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+function currentStart(){let open=null;for(const e of entries){if(e.kind==='open')open=e; else if(['accept','cancel'].includes(e.kind))open=null;}return open;}
+function lastKind(){return entries.length?entries[entries.length-1].kind:null;}
+function persist(next){if(storageFailure){alert('保存領域の読み込みに問題があります。上書きを避けるため操作を停止しています。');return false;}
+try{localStorage.setItem(KEY,JSON.stringify(next));entries=next;return true;}catch(err){alert('保存に失敗しました。ストレージ容量やプライベートモードを確認してください。');return false;}}
+function geo(){try{if(typeof position!=='undefined'&&position&&Number.isFinite(position.lat)&&Number.isFinite(position.lon)){return {lat:position.lat,lon:position.lon};}}catch(e){}return {};}
+function add(kind,at,manual=false){if(storageFailure)return;
+const last=entries[entries.length-1];if(!types[kind]||!Number.isFinite(at))return;
+if(last&&at<=last.at){alert('既存の最後の記録より後の時刻を入力してください。過去分を編集する場合はログをバックアップし、別途整理してください。');return;}
+const open=currentStart();
+if(kind==='open'&&open){alert('すでにGO受付開始を記録しています。受注または受付取消・中断を記録してください。');return;}
+if(kind==='accept'&&!open){if(!confirm('対応する受付開始がありません。受注時刻のみ記録しますか？（待ち時間は計算しません）'))return;}
+if(kind==='cancel'&&!open){alert('受付中の記録がありません。');return;}
+if(kind==='dropoff'&&lastKind()!=='accept'){if(!confirm('直前のイベントがGO受注ではありません。降車記録のみ保存しますか？'))return;}
+const e={kind,at,manual,hiddenGap:kind==='accept'&&open?hiddenDuringOpen:false,...geo()};
+if(persist([...entries,e])){if(kind==='open')hiddenDuringOpen=false;el('goNotice').textContent=`${jst(at)} ${types[kind]}を記録しました${manual?'（事後入力）':''}。`;render();}}
+function completed(){let open=null,outs=[];for(let i=0;i<entries.length;i++){const e=entries[i];if(e.kind==='open')open=e;else if(e.kind==='accept'){if(open){const gap=(e.at-open.at)/60000;outs.push({open,e,mins:gap,valid:gap>=0&&gap<=240&&!e.hiddenGap&&!open.manual&&!e.manual,reason:e.hiddenGap?'画面外あり':open.manual||e.manual?'事後入力':gap>240?'240分超':'計測'});open=null;}}else if(e.kind==='cancel')open=null;}return outs;}
+function render(){const open=currentStart(),last=lastKind(),pairs=completed(),valid=pairs.filter(p=>p.valid),avg=valid.length?valid.reduce((n,p)=>n+p.mins,0)/valid.length:null;
+el('goState').textContent='受付状態：'+(open?'受付中（手動記録）':last==='accept'?'受注済み（手動記録）':last==='dropoff'?'降車記録済み':last==='cancel'?'受付中断':'未記録');
+el('goOrders').textContent=entries.filter(e=>e.kind==='accept').length+'件';el('goAverage').textContent=avg===null?'—':avg.toFixed(1)+'分';
+el('goElapsed').textContent=open?Math.max(0,Math.floor((Date.now()-open.at)/60000))+'分':'—';
+el('goOpen').disabled=Boolean(open);el('goAccepted').disabled=false;el('goCancel').disabled=!open;
+const lines=entries.slice(-30).reverse().map((e,idx)=>{const pair=e.kind==='accept'?pairs.find(p=>p.e===e):null;const detail=pair?`｜待ち ${pair.mins.toFixed(1)}分（${pair.valid?'計算対象':pair.reason+'／計算対象外'}）`:'';return `<div class="go-log-item">${escapeText(jst(e.at))}　${escapeText(types[e.kind])}${e.manual?'［事後入力］':''}${detail}${Number.isFinite(e.lat)?'｜GPS記録あり':''}</div>`;});
+el('goLogItems').innerHTML=lines.length?lines.join(''):'記録なし';}
+function escapeText(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function exportFile(filename,content,mime){const blob=new Blob([content],{type:mime});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2500);}
+function csvCell(v){const s=String(v??'');return /[",\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
+const localStamp=()=>{const d=new Date(),z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'T'+z(d.getHours())+':'+z(d.getMinutes());};
+for(const [id,kind] of [['goOpen','open'],['goAccepted','accept'],['goDropoff','dropoff'],['goCancel','cancel']])el(id).addEventListener('click',()=>add(kind,Date.now()));
+el('goManualAt').value=localStamp();
+el('goManualAdd').addEventListener('click',()=>{const s=el('goManualAt').value;const ms=new Date(s).getTime();if(!s||!Number.isFinite(ms)){alert('日時を指定してください。');return;}if(ms>Date.now()+60000){alert('未来の時刻は入力できません。');return;}if(confirm('実際に確認できた時刻として記録しますか？'))add(el('goManualType').value,ms,true);});
+el('goExportJson').addEventListener('click',()=>{exportFile('tokyo_go_log_v3_'+localStamp().slice(0,10)+'.json',JSON.stringify({schema:'tokyo-taxi-go-log-v3',exported_at:new Date().toISOString(),source:'manual-button-or-manual-retrospective',entries,metrics:{valid_waits:completed().filter(p=>p.valid).length,unverified_waits:completed().filter(p=>!p.valid).length}},null,2),'application/json');});
+el('goExportCsv').addEventListener('click',()=>{const rows=[['timestamp_iso','event','entry_method','lat','lon','hidden_gap']].concat(entries.map(e=>[new Date(e.at).toISOString(),e.kind,e.manual?'retrospective':'button',e.lat??'',e.lon??'',e.hiddenGap?'yes':'no']));exportFile('tokyo_go_log_v3_'+localStamp().slice(0,10)+'.csv', '\ufeff'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n'),'text/csv;charset=utf-8');});
+el('goDelete').addEventListener('click',()=>{if(confirm('GO受付ログを全削除します。先にJSONバックアップを保存しましたか？')&&confirm('最終確認：端末内のGO受付ログを削除しますか？')){try{localStorage.removeItem(KEY);entries=[];hiddenDuringOpen=false;render();el('goNotice').textContent='GO受付ログを削除しました。';}catch(e){alert('削除できませんでした。');}}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&currentStart())hiddenDuringOpen=true;});
+window.addEventListener('pagehide',()=>{if(currentStart())hiddenDuringOpen=true;});
+// 画面内の計測のみ。ブラウザ非表示中に連続記録できたとみなさない。
+setInterval(()=>{if(!document.hidden)render();},30000);
+if(lastReport)el('goNotice').textContent=lastReport;
+render();
+})();
+</script>
+</body></html>
